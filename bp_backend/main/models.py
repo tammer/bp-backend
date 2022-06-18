@@ -16,3 +16,10 @@ class Attribute(models.Model):
 
     def __str__(self):
         return self.name
+
+class Profile(models.Model):
+    owner = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    spec = models.TextField()
+
+    def __str__(self):
+        return self.spec
