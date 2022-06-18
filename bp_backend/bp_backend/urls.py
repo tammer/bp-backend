@@ -19,5 +19,5 @@ from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('attributes/', views.Attributes.as_view()),
+    path('attributes/<slug:category_name>/', views.Attributes.as_view()),
 ]

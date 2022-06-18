@@ -4,4 +4,4 @@ from .models import Attribute
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attribute
-        fields = ('category', 'name')
+        fields = ('name',)
