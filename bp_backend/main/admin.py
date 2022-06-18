@@ -5,7 +5,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 class AttributeAdmin(admin.ModelAdmin):
-    list_display = ("category","value")
+    list_display = ("category","name")
 
 # Register your models here.
 

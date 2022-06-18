@@ -12,7 +12,7 @@ class Attribute(models.Model):
         on_delete=models.CASCADE,
     )
 
-    value = models.CharField(max_length=40)
+    name = models.CharField(max_length=40)
 
     def __str__(self):
-        return self.value
+        return self.name
