@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from django.contrib.auth import login, logout
+from django.http import JsonResponse
 
 class LoginView(APIView):
     # This view should be accessible also for unauthenticated users.
@@ -20,7 +21,7 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         login(request, user)
-        return Response(None, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'sessionid':request.session.session_key})
 
 class LogoutView(APIView):
 
