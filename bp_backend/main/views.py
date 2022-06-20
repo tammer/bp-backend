@@ -2,11 +2,32 @@ from urllib import response
 from attr import attributes
 from django.shortcuts import render
 from yaml import serialize
-from .serializers import AttributeSerializer,ProfileSerializer
+from .serializers import AttributeSerializer,ProfileSerializer,LoginSerializer
 from .models import Attribute,Category,Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
+from django.contrib.auth import login, logout
+
+class LoginView(APIView):
+    # This view should be accessible also for unauthenticated users.
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=self.request.data,
+            context={ 'request': self.request })
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return Response(None, status=status.HTTP_202_ACCEPTED)
+
+class LogoutView(APIView):
+
+    def get(self, request, format=None):
+        logout(request)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
 
 class Attributes(APIView):
     def get(self, request, category_name):

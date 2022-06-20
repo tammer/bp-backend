@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('attributes/<slug:category_name>/', views.Attributes.as_view()),
     path('profile/', views.MyProfile.as_view()),
-    path('api-auth/', include('rest_framework.urls')),
+    path('login/', views.LoginView.as_view()),
+    path('logout/', views.LogoutView.as_view()),
 ]
