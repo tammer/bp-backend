@@ -2,7 +2,9 @@ from urllib import response
 from attr import attributes
 from django.shortcuts import render
 from yaml import serialize
-from .serializers import AttributeSerializer,ProfileSerializer,LoginSerializer
+
+from accounts.models import BPUser
+from .serializers import AttributeSerializer,ProfileSerializer,LoginSerializer,BPUserSerializer
 from .models import Attribute,Category,Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +12,20 @@ from rest_framework import status
 from rest_framework import permissions
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
+from rest_framework.renderers import JSONRenderer
+import io
+from rest_framework.parsers import JSONParser
+
+class AccountView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = BPUserSerializer(data=self.request.data,
+            context={ 'request': self.request })
+        serializer.is_valid(raise_exception=True)
+        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+        BPUser.objects.create_user(username="U"+atts['email'],password=atts['password'],email=atts['email'])
+        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     # This view should be accessible also for unauthenticated users.

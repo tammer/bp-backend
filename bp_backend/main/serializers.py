@@ -1,6 +1,12 @@
 from rest_framework import serializers
 from .models import Attribute, Profile
 from django.contrib.auth import authenticate
+from accounts.models import BPUser
+
+class BPUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BPUser
+        fields = ('email','password')
 
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
