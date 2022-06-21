@@ -31,6 +31,9 @@ class LogoutView(APIView):
 
 
 class Attributes(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request, category_name):
         try:
             category = Category.objects.get(name=category_name)
