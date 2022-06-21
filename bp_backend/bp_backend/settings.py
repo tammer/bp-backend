@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'main',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -139,4 +140,4 @@ REST_FRAMEWORK = {
     ],
 }
 
-
+AUTH_USER_MODEL = "accounts.BPUser"
