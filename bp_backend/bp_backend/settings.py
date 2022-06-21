@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'main',
     'accounts',
+    'allauth',
+    'allauth.account',
 ]
 
 MIDDLEWARE = [
@@ -141,3 +143,21 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "accounts.BPUser"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_UNIQUE_EMAIL = True
+
