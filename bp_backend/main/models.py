@@ -22,4 +22,4 @@ class Profile(models.Model):
     spec = models.TextField()
 
     def __str__(self):
-        return self.spec
+        return self.owner.email
