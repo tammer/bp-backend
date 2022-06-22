@@ -22,9 +22,7 @@ class Attribute(models.Model):
         'Category',
         on_delete=models.CASCADE,
     )
-
     name = models.CharField(max_length=40)
-
     def __str__(self):
         return self.name
 
@@ -42,9 +40,11 @@ class AnchorInvite(models.Model):
     receiver_email = models.EmailField()
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     level = models.ForeignKey(Level,on_delete=models.CASCADE)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ('receiver_email', 'skill',)
     def __str__(self):
-        return self.created_at
+        return self.passer.__str__()
 
 class Profile(models.Model):
     owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)

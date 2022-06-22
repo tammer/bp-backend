@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import Attribute, Profile
+from .models import Attribute, Profile, AnchorInvite
 from django.contrib.auth import authenticate
 from accounts.models import BPUser
+
+class AnchorInviteSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
+    receiver_email = serializers.EmailField()
+    skill = serializers.CharField()
+    level = serializers.CharField()
+    created_at = serializers.DateTimeField(required=False)
 
 class BPUserSerializer(serializers.ModelSerializer):
     class Meta:

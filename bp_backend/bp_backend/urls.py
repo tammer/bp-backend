@@ -24,4 +24,7 @@ urlpatterns = [
     path('login/', views.LoginView.as_view()),
     path('logout/', views.LogoutView.as_view()),
     path('accounts/',views.AccountView.as_view()),
+    path('invites/',views.AnchorInvitesView.as_view()),
+    path('invite/<int:id>',views.AnchorInviteView.as_view()),
+    path('invite/',views.AnchorInviteView.as_view()),
 ]
