@@ -26,23 +26,18 @@ class Attribute(models.Model):
     def __str__(self):
         return self.name
 
-class AnchorTable(models.Model):
+choices_ = (('pending','pending'),('active','active'),('declined','declined'),('expired','expired'),('canceled','canceled'))
+class Anchor(models.Model):
     passer =  models.ForeignKey(BPUser, related_name='passer_anchor_table', on_delete=models.CASCADE)
-    receiver =  models.ForeignKey(BPUser, related_name='receiver_anchor_table',  on_delete=models.CASCADE)
-    skill = models.ForeignKey(Attribute, on_delete=models.CASCADE)
-    level = models.ForeignKey(Level, on_delete=models.CASCADE)
-    created_at = models.DateTimeField()
-    def __str__(self):
-        return self.created_at
-
-class AnchorInvite(models.Model):
-    passer =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
+    receiver =  models.ForeignKey(BPUser, related_name='receiver_anchor_table',  on_delete=models.CASCADE, null=True)
     receiver_email = models.EmailField()
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     level = models.ForeignKey(Level,on_delete=models.CASCADE)
+    status = models.CharField(choices=choices_, max_length=25, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     class Meta:
-        unique_together = ('receiver_email', 'skill',)
+        unique_together = ('passer','receiver_email', 'skill',)
     def __str__(self):
         return self.passer.__str__()
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Category, Attribute,Profile,Level,Skill,AnchorInvite
+from .models import Category, Attribute,Profile,Level,Skill,Anchor
 
-class AnchorInviteAdmin(admin.ModelAdmin):
+class AnchorAdmin(admin.ModelAdmin):
     list_display: ("passer",)
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -26,4 +26,4 @@ admin.site.register(Attribute, AttributeAdmin)
 admin.site.register(Profile,ProfileAdmin)
 admin.site.register(Level, LevelAdmin)
 admin.site.register(Skill,SkillAdmin)
-admin.site.register(AnchorInvite,AnchorInviteAdmin)
+admin.site.register(Anchor,AnchorAdmin)

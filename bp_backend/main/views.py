@@ -4,8 +4,8 @@ from django.shortcuts import render
 from yaml import serialize
 
 from accounts.models import BPUser
-from .serializers import AnchorInviteSerializer, AttributeSerializer,ProfileSerializer,LoginSerializer,BPUserSerializer
-from .models import Attribute,Category,Profile,AnchorInvite,Skill,Level
+from .serializers import AnchorSerializer, AttributeSerializer,ProfileSerializer,LoginSerializer,BPUserSerializer
+from .models import Attribute,Category,Profile,Anchor,Skill,Level
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,21 +16,21 @@ from rest_framework.renderers import JSONRenderer
 import io
 from rest_framework.parsers import JSONParser
 
-class AnchorInvitesView(APIView):
+class AnchorsView(APIView):
     def get(self, request, format=None):
         try:
             if not(request.user.is_authenticated):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            invites = AnchorInvite.objects.filter(passer=request.user)
-            serializer = AnchorInviteSerializer(invites,many=True)
+            anchors = Anchor.objects.filter(passer=request.user)
+            serializer = AnchorSerializer(anchors,many=True)
             return Response(serializer.data)
         except:
             return Response('Something went wrong',status=status.HTTP_400_BAD_REQUEST)
 
-class AnchorInviteView(APIView):
+class AnchorView(APIView):
     def get_(self,id):
         try:
-           return AnchorInvite.objects.get( id=id )
+           return Anchor.objects.get( id=id )
         except:
             return None
     def get(self,request,id=None,format=None):
@@ -39,12 +39,12 @@ class AnchorInviteView(APIView):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
             if id is None:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            invite = self.get_(id)
-            if invite is None:
-                return Response('invite no existo',status=status.HTTP_400_BAD_REQUEST)
-            if invite.passer != request.user:
+            anchor = self.get_(id)
+            if anchor is None:
+                return Response('anchor no existo',status=status.HTTP_400_BAD_REQUEST)
+            if anchor.passer != request.user:
                 return Response('Not for you to see',status=status.HTTP_400_BAD_REQUEST)
-            serializer = AnchorInviteSerializer(invite,many=False)
+            serializer = AnchorSerializer(anchor,many=False)
             return Response(serializer.data)
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
@@ -62,13 +62,13 @@ class AnchorInviteView(APIView):
         try:
             if not(request.user.is_authenticated):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            serializer = AnchorInviteSerializer(data=self.request.data,context={ 'request': self.request })
+            serializer = AnchorSerializer(data=self.request.data,context={ 'request': self.request })
             serializer.is_valid(raise_exception=True)
             atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-            ai = AnchorInvite(  passer=request.user,
-                                receiver_email=atts['receiver_email'],
-                                skill=Skill.objects.get(name=atts['skill']),
-                                level=Level.objects.get(name=atts['level']))
+            ai = Anchor( passer=request.user,
+                        receiver_email=atts['receiver_email'],
+                        skill=Skill.objects.get(name=atts['skill']),
+                        level=Level.objects.get(name=atts['level']))
             ai.save()
             return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
         except Exception as e:
