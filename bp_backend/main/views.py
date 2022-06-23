@@ -175,7 +175,7 @@ class MyProfile(APIView):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         profile = self.get_(request)
         if profile is None:
-            return Response('your profile does not exist',status=status.HTTP_400_BAD_REQUEST)
+            profile = Profile(owner=request.user)
         s = ProfileSerializer(profile, data=request.data)
         if s.is_valid():
             s.save( owner=request.user)
