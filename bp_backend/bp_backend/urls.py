@@ -24,7 +24,19 @@ urlpatterns = [
     path('login/', views.LoginView.as_view()),
     path('logout/', views.LogoutView.as_view()),
     path('accounts/',views.AccountView.as_view()),
+
     path('anchors/',views.AnchorsView.as_view()),
+        # POST here to pass an anchor (i.e. invite)
+        # GET here to see all my active anchors
+
+    path('anchors/<slug:filter>',views.AnchorsView.as_view()),
+        # GET here to see all anchors filtered by one of:
+        # "sent", "received", "all"
+
     path('anchor/<int:id>',views.AnchorView.as_view()),
-    path('invite/',views.AnchorView.as_view()),
-]
+        # GET to see a specific anchor
+
+    path('anchor/<int:id>/<slug:action>',views.AnchorView.as_view()),
+        # PUT to "accept", "reject" or "cancel"
+
+    ]

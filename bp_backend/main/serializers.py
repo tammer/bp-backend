@@ -5,6 +5,7 @@ from accounts.models import BPUser
 
 class AnchorSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
+    passer = serializers.EmailField()
     receiver_email = serializers.EmailField()
     skill = serializers.CharField()
     level = serializers.CharField()
