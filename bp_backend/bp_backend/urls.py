@@ -23,7 +23,7 @@ urlpatterns = [
     path('profile/', views.MyProfile.as_view()),
     path('login/', views.LoginView.as_view()),
     path('logout/', views.LogoutView.as_view()),
-    path('accounts/',views.AccountView.as_view()),
+    # path('accounts/',views.AccountView.as_view()), Why is this here?
 
     path('anchors/',views.AnchorsView.as_view()),
         # POST here to pass an anchor (i.e. invite)
