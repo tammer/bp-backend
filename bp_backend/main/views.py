@@ -1,7 +1,5 @@
 from urllib import response
 from attr import attributes
-from django.shortcuts import render
-from yaml import serialize
 
 from accounts.models import BPUser
 from .serializers import AnchorSerializer, AttributeSerializer,ProfileSerializer
