@@ -25,6 +25,12 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view()),
     # path('accounts/',views.AccountView.as_view()), Why is this here?
 
+    path('assessments/',views.AssessmentsView.as_view()),
+        # GET OR POST
+
+    path('assessment/<int:id>',views.AssessmentView.as_view()),
+        # GET, PUT, DELETE
+
     path('anchors/',views.AnchorsView.as_view()),
         # POST here to pass an anchor (i.e. invite)
         # GET here to see all my active anchors

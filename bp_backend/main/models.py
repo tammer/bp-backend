@@ -45,6 +45,13 @@ class Profile(models.Model):
     owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)
     spec = models.TextField()
 
+class Assessment(models.Model):
+    owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
+    level = models.ForeignKey(Level,on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('owner','skill',)
+
     def __str__(self):
         return self.owner.email
 

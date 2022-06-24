@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Attribute, Profile, Anchor
+from .models import Attribute, Profile, Assessment
 from django.contrib.auth import authenticate
 from accounts.models import BPUser
+
+class AssessmentSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
+    skill = serializers.CharField()
+    level = serializers.CharField()
 
 class AnchorSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
