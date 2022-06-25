@@ -10,8 +10,8 @@ class SkillSerializer(serializers.ModelSerializer):
 
 class AssessmentSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
-    skill = serializers.CharField()
-    level = serializers.CharField()
+    skill = serializers.CharField(required=False)
+    level = serializers.CharField(required=False)
 
 class AnchorSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)

@@ -81,9 +81,9 @@ class AssessmentView(APIView):
             serializer.is_valid(raise_exception=True)
             atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
             item = self.get_(id)
-            if atts['skill'] is not None:
+            if "skill" in atts:
                 item.skill = Skill.objects.get(name=atts['skill'])
-            if atts['level'] is not None:
+            if "level" in atts:
                 item.level = Level.objects.get(name=atts['level'])
             item.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
