@@ -1,9 +1,11 @@
+from sys import api_version
 from urllib import response
 from attr import attributes
+from regex import A
 
 from accounts.models import BPUser
-from .serializers import AnchorSerializer, AttributeSerializer,ProfileSerializer
-from .serializers import LoginSerializer,BPUserSerializer,AssessmentSerializer
+from .serializers import AnchorSerializer, AttributeSerializer, LevelSerializer,ProfileSerializer
+from .serializers import LoginSerializer,BPUserSerializer,AssessmentSerializer,SkillSerializer
 from .models import Attribute,Category,Profile,Anchor,Skill,Level,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,6 +17,7 @@ from rest_framework.renderers import JSONRenderer
 import io
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
+from itertools import chain
 
 class AssessmentsView(APIView):
     def get(self,request):
@@ -203,6 +206,27 @@ class LogoutView(APIView):
         logout(request)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+
+class LevelsView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        levels = Level.objects.all().order_by('id')
+        serializer = LevelSerializer(levels,many=True)
+        return Response(serializer.data)
+
+class SkillsView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request,pattern=None):
+        if pattern is None:
+            skills = Skill.objects.all()
+        else:
+            skills1 = Skill.objects.filter(name__startswith=pattern)
+            skills2 = Skill.objects.filter(Q(name__contains=pattern) & ~Q(name__startswith=pattern))
+            skills = chain(skills1, skills2)
+        serializer = SkillSerializer(skills,many=True)
+        return Response(serializer.data)
 
 class Attributes(APIView):
 

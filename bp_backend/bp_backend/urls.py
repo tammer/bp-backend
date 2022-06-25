@@ -20,6 +20,9 @@ from main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('attributes/<slug:category_name>/', views.Attributes.as_view()),
+    path('levels/', views.LevelsView.as_view()),
+    path('skills/', views.SkillsView.as_view()),
+    path('skills/<str:pattern>', views.SkillsView.as_view()),
     path('profile/', views.MyProfile.as_view()),
     path('login/', views.LoginView.as_view()),
     path('logout/', views.LogoutView.as_view()),

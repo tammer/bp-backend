@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Attribute, Profile, Assessment
+from .models import Attribute, Profile, Level,Skill
 from django.contrib.auth import authenticate
 from accounts.models import BPUser
+
+class SkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = ('id','name')
 
 class AssessmentSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
@@ -26,6 +31,11 @@ class BPUserSerializer(serializers.ModelSerializer):
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attribute
+        fields = ('id', 'name',)
+
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
         fields = ('id', 'name',)
 
 class ProfileSerializer(serializers.ModelSerializer):
