@@ -91,28 +91,68 @@ class AssessmentView(APIView):
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
 
 class AnchorsView(APIView):
-    def get(self, request, filter=None, format=None):
-        try:
-            if not(request.user.is_authenticated):
-                return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            if filter is None:
-                anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active')
-            elif filter == 'sent':
-                anchors = Anchor.objects.filter(passer=request.user,status='pending')
-            elif filter == 'received':
-                anchors = Anchor.objects.filter(receiver_email=request.user.email,status='pending')
-            elif filter == 'all':
-                anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver_email=request.user.email))
+    def prettyAnchorView(self,request):
+        rv = {}
+        # y = {   ["active"]:   Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active'),
+        #         ["sent","pending"]:     Anchor.objects.filter(passer=request.user).filter(status='pending').order_by("created_at"),
+        #         ["sent","declined"]:     Anchor.objects.filter(passer=request.user).filter( status='declined').order_by("created_at"),
+        #         "received": Anchor.objects.filter(receiver_email=request.user.email).filter(Q(status='pending') | Q(status='declined')).order_by("created_at"),
+        #     }
+        y = [
+            [["active"],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active')],
+            [["sent","pending"],Anchor.objects.filter(passer=request.user).filter(status='pending').order_by("created_at")],
+            [["sent","declined"],Anchor.objects.filter(receiver_email=request.user.email).filter(Q(status='pending') | Q(status='declined')).order_by("created_at")],
+            [["received","pending"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='pending').order_by("created_at")],
+            [["received","declined"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='declined').order_by("created_at")],
+        ]
+        for item in y:
+            key = item[0]
+            anchors = item[1]
+            x = {}
+            for anchor in anchors:
+                if anchor.passer == request.user:
+                    counterparty = anchor.receiver_email
+                else:
+                    counterparty = anchor.passer.email
+                if not(counterparty in x):
+                    x[counterparty] = {}
+                level = anchor.level.name
+                if not(level in x[counterparty]):
+                    x[counterparty][level] = []
+                x[counterparty][level].append({"id": anchor.id, "skill":anchor.skill.name, "originated_by_me":anchor.passer == request.user})
+            if len(key) == 1:
+                rv[key[0]] = x
             else:
-                return Response('Not a valid path',status=status.HTTP_400_BAD_REQUEST)
+                if key[0] in rv:
+                    rv[key[0]][key[1]] = x
+                else:
+                    rv[key[0]] = {key[1]:x}
 
 
-            serializer = AnchorSerializer(anchors,many=True)
-            return Response(serializer.data)
-        except:
-            return Response('Something went wrong',status=status.HTTP_400_BAD_REQUEST)
+        return Response(rv)
 
-    def post(self,request,filter,format=None):
+    def get(self, request, filter=None, format=None):
+        # try:
+        if not(request.user.is_authenticated):
+            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        if filter is None:
+            return self.prettyAnchorView(request)
+        elif filter == 'sent':
+            anchors = Anchor.objects.filter(passer=request.user,status='pending')
+        elif filter == 'received':
+            anchors = Anchor.objects.filter(receiver_email=request.user.email,status='pending')
+        elif filter == 'all':
+            anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver_email=request.user.email))
+        else:
+            return Response('Not a valid path',status=status.HTTP_400_BAD_REQUEST)
+
+
+        serializer = AnchorSerializer(anchors,many=True)
+        return Response(serializer.data)
+        # except:
+            # return Response('Something went wrong',status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self,request,format=None):
         try:
             if not(request.user.is_authenticated):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
@@ -226,6 +266,7 @@ class SkillsView(APIView):
             skills2 = Skill.objects.filter(Q(name__contains=pattern) & ~Q(name__startswith=pattern))[:20]
             skills = chain(skills1, skills2)
         serializer = SkillSerializer(skills,many=True)
+        # time.sleep(3)
         return Response(serializer.data)
 
 class Attributes(APIView):

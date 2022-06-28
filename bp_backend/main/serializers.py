@@ -15,7 +15,7 @@ class AssessmentSerializer(serializers.Serializer):
 
 class AnchorSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
-    passer = serializers.EmailField()
+    passer = serializers.EmailField(required=False)
     receiver_email = serializers.EmailField()
     skill = serializers.CharField()
     level = serializers.CharField()

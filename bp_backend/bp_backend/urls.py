@@ -49,6 +49,6 @@ urlpatterns = [
         # GET to see a specific anchor
 
     path('anchor/<int:id>/<slug:action>',views.AnchorView.as_view()),
-        # PUT to "accept", "reject" or "cancel"
+        # PUT to "accept", "decline" or "cancel"
 
     ]
