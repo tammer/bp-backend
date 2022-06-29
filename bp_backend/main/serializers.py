@@ -8,10 +8,15 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = ('id','name')
 
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
+        fields = ('id','name')
+
 class AssessmentSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
-    skill = serializers.CharField(required=False)
-    level = serializers.CharField(required=False)
+    skill = SkillSerializer(required=False)
+    level = LevelSerializer(required=False)
 
 class AnchorSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
