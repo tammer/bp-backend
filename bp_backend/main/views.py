@@ -100,7 +100,7 @@ class AnchorsView(APIView):
         y = [
             [["active"],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active')],
             [["sent","pending"],Anchor.objects.filter(passer=request.user).filter(status='pending').order_by("created_at")],
-            [["sent","declined"],Anchor.objects.filter(receiver_email=request.user.email).filter(Q(status='pending') | Q(status='declined')).order_by("created_at")],
+            [["sent","declined"],Anchor.objects.filter(passer=request.user).filter(Q(status='pending') | Q(status='declined')).order_by("created_at")],
             [["received","pending"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='pending').order_by("created_at")],
             [["received","declined"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='declined').order_by("created_at")],
         ]
