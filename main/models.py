@@ -3,17 +3,17 @@ from accounts.models import BPUser
 
 class Level(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=20,unique=True)
+    name = models.CharField(max_length=120,unique=True)
     def __str__(self):
         return self.name
 
 class Skill(models.Model):
-    name = models.CharField(max_length=20,unique=True)
+    name = models.CharField(max_length=120,unique=True)
     def __str__(self):
         return self.name
 
 class Category(models.Model):
-    name = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=120, unique=True)
     def __str__(self):
         return self.name
 
@@ -22,7 +22,7 @@ class Attribute(models.Model):
         'Category',
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=120)
     def __str__(self):
         return self.name
 
@@ -33,7 +33,7 @@ class Anchor(models.Model):
     receiver_email = models.EmailField()
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     level = models.ForeignKey(Level,on_delete=models.CASCADE)
-    status = models.CharField(choices=choices_, max_length=25, default='pending')
+    status = models.CharField(choices=choices_, max_length=120, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
