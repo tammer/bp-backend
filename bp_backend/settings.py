@@ -91,8 +91,8 @@ DATABASES = {
     }
 }
 
-DATABASES['default'] = dj_database_url.config()
-
+if 'DATABASE_URL' in os.environ:  # if we are on heroku, then this is set
+    DATABASES['default'] = dj_database_url.config()
 
 
 # Password validation

@@ -15,6 +15,9 @@ class Command(BaseCommand):
         #
         Category.objects.all().delete()
         Attribute.objects.all().delete()
+        Skill.objects.all().delete()
+        Level.objects.all().delete()
+        BPUser.objects.all().delete()
         category = ''
         with open('./main/management/commands/attributes.txt') as file:
             while (line := file.readline().rstrip()):
