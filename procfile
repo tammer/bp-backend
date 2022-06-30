@@ -1,2 +1,1 @@
 web: gunicorn tk-backend-1.wsgi
-config:set DISABLE_COLLECTSTATIC=1
