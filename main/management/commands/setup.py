@@ -35,6 +35,7 @@ class Command(BaseCommand):
         list_url = "https://raw.githubusercontent.com/tammer/technology-list/main/list.txt"
         for i in requests.get(list_url).text.split("\n"):
             if len(i) > 0:
+                print(i)
                 Skill(name=i).save()
 
         #
