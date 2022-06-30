@@ -1,1 +1,1 @@
-web: gunicorn bp_backend.wsgi
+web: gunicorn bp_backend/bp_backend.wsgi
