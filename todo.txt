@@ -1,0 +1,2 @@
+case insenstive on /skills/<slug>
+visual foxpro appears multiple times in tech list
