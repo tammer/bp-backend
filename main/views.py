@@ -261,8 +261,8 @@ class SkillsView(APIView):
         if pattern is None:
             skills = Skill.objects.all()[:30]
         else:
-            skills1 = Skill.objects.filter(name__startswith=pattern)[:20]
-            skills2 = Skill.objects.filter(Q(name__contains=pattern) & ~Q(name__startswith=pattern))[:20]
+            skills1 = Skill.objects.filter(name__istartswith=pattern)[:20]
+            skills2 = Skill.objects.filter(Q(name__icontains=pattern) & ~Q(name__startswith=pattern))[:20]
             skills = chain(skills1, skills2)
         serializer = SkillSerializer(skills,many=True)
         # time.sleep(3)
