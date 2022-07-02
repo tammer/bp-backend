@@ -4,9 +4,9 @@ from attr import attributes
 from regex import A
 
 from accounts.models import BPUser
-from .serializers import AnchorSerializer, AttributeSerializer, LevelSerializer,ProfileSerializer
-from .serializers import LoginSerializer,BPUserSerializer,AssessmentSerializer,SkillSerializer
-from .models import Attribute,Category,Profile,Anchor,Skill,Level,Assessment
+from ..serializers import AnchorSerializer, AttributeSerializer, LevelSerializer,ProfileSerializer
+from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
+from ..models import Attribute,Category,Profile,Anchor,Skill,Level
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,76 +18,6 @@ import io
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
 from itertools import chain
-
-class AssessmentsView(APIView):
-    def get(self,request):
-        if not(request.user.is_authenticated):
-            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        assessments = Assessment.objects.filter(owner=request.user)
-        serializer = AssessmentSerializer(assessments,many=True)
-        return Response(serializer.data)
-    def post(self,request):
-        if not(request.user.is_authenticated):
-            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        try:
-            serializer = AssessmentSerializer(data=self.request.data,context={ 'request': self.request })
-            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
-            a = Assessment( owner=request.user,
-                            skill=Skill.objects.get(name=atts['skill']['name']),
-                            level=Level.objects.get(name=atts['level']['name']))
-            a.save()
-        except Exception as e:
-            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
-
-        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
-
-class AssessmentView(APIView):
-    def get_(self,id):
-        try:
-           return Assessment.objects.get( id=id )
-        except:
-            return None
-
-    def get(self,request,id):
-        try:
-            if not(request.user.is_authenticated):
-                return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            if id is None:
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            assessment = self.get_(id)
-            if assessment is None:
-                return Response('assessment no existo',status=status.HTTP_400_BAD_REQUEST)
-            serializer = AssessmentSerializer(assessment,many=False)
-            return Response(serializer.data)
-        except Exception as e:
-            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self,request,id):
-        if not(request.user.is_authenticated):
-           return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        try:
-            item = self.get_(id)
-            item.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self,request,id):
-        if not(request.user.is_authenticated):
-           return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        try:
-            serializer = AssessmentSerializer(data=self.request.data,context={ 'request': self.request })
-            serializer.is_valid(raise_exception=True)
-            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-            item = self.get_(id)
-            if "skill" in atts:
-                item.skill = Skill.objects.get(name=atts['skill'])
-            if "level" in atts:
-                item.level = Level.objects.get(name=atts['level'])
-            item.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
 
 class AnchorsView(APIView):
     def prettyAnchorView(self,request):
