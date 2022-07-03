@@ -3,6 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from main.serializers import AssessmentSerializer
 from main.models import Skill,Level,Assessment
+from rest_framework.parsers import JSONParser
+import io
+from rest_framework.renderers import JSONRenderer
+from django.http import JsonResponse
 
 class AssessmentsView(APIView):
     def get(self,request):
