@@ -1,0 +1,6 @@
+add location thingee
+
+requirements page should know when it has been udpated and only offer next button if that is the case.
+should also have a revert changes button
+
+what happens when name changes on server (id stays the same)

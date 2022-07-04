@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import BPUser
+import json
 
 class Level(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -44,6 +45,13 @@ class Anchor(models.Model):
 class Profile(models.Model):
     owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)
     spec = models.TextField()
+
+    def skills(self):
+        rv = []
+        for i in json.loads(self.spec)['TechStack']['attributes']:
+            rv.append(Skill.objects.get(id=i['id']))
+        return rv
+
 
 class Assessment(models.Model):
     owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
