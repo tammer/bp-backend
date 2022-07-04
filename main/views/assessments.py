@@ -66,13 +66,15 @@ class AssessmentView(APIView):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         try:
             serializer = AssessmentSerializer(data=self.request.data,context={ 'request': self.request })
-            serializer.is_valid(raise_exception=True)
-            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
             item = self.get_(id)
             if "skill" in atts:
-                item.skill = Skill.objects.get(name=atts['skill'])
+                item.skill = Skill.objects.get(name=atts['skill']['name'])
             if "level" in atts:
-                item.level = Level.objects.get(name=atts['level'])
+                if "id" in atts['level']:
+                    item.level = Level.objects.get(id=atts['level']['id'])
+                else:
+                    item.level = Level.objects.get(name=atts['level']['name'])
             item.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
