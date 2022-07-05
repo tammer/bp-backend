@@ -1,6 +1,12 @@
-add location thingee
-
 requirements page should know when it has been udpated and only offer next button if that is the case.
 should also have a revert changes button
 
 what happens when name changes on server (id stays the same)
+
+requiremenst page should be probably always syncing with server
+
+guy creates new skill.  we disagree and delete it. what happens to his profile?
+vulnerability:  someone POSTS new tech skills x 1e20.
+seems to be a vulnerability for any POST
+
+confirm modal for tech, but do generic confirm modal to use site wide.

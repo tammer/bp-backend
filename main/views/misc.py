@@ -66,8 +66,21 @@ class SkillsView(APIView):
             skills2 = Skill.objects.filter(Q(name__icontains=pattern) & ~Q(name__startswith=pattern))[:20]
             skills = chain(skills1, skills2)
         serializer = SkillSerializer(skills,many=True)
-        # time.sleep(3)
         return Response(serializer.data)
+
+    def post(self,request):
+        if not(request.user.is_authenticated):
+            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        serializer = SkillSerializer(data=self.request.data,context={ 'request': self.request })
+        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
+        try:
+            existing = Skill.objects.get(name=atts["name"])
+            return JsonResponse({"id":existing.id}, status=status.HTTP_200_OK)
+        except:
+            y = Skill(name=atts["name"])
+            y.save();
+            return JsonResponse({"id":y.id}, status=status.HTTP_201_CREATED)
+
 
 class Attributes(APIView):
     permission_classes = (permissions.AllowAny,)
