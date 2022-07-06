@@ -12,17 +12,12 @@ from django.db.models import Q
 class AnchorsView(APIView):
     def prettyAnchorView(self,request):
         rv = {}
-        # y = {   ["active"]:   Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active'),
-        #         ["sent","pending"]:     Anchor.objects.filter(passer=request.user).filter(status='pending').order_by("created_at"),
-        #         ["sent","declined"]:     Anchor.objects.filter(passer=request.user).filter( status='declined').order_by("created_at"),
-        #         "received": Anchor.objects.filter(receiver_email=request.user.email).filter(Q(status='pending') | Q(status='declined')).order_by("created_at"),
-        #     }
         y = [
-            [["active"],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status='active')],
-            [["sent","pending"],Anchor.objects.filter(passer=request.user).filter(status='pending').order_by("created_at")],
-            [["sent","declined"],Anchor.objects.filter(passer=request.user).filter(Q(status='pending') | Q(status='declined')).order_by("created_at")],
-            [["received","pending"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='pending').order_by("created_at")],
-            [["received","declined"],Anchor.objects.filter(receiver_email=request.user.email).filter(status='declined').order_by("created_at")],
+            [[Anchor.ACTIVE],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status=Anchor.ACTIVE)],
+            [["sent",Anchor.PENDING],Anchor.objects.filter(passer=request.user).filter(status=Anchor.PENDING).order_by("created_at")],
+            [["sent",Anchor.DECLINED],Anchor.objects.filter(passer=request.user).filter(Q(status=Anchor.PENDING) | Q(status=Anchor.DECLINED)).order_by("created_at")],
+            [["received",Anchor.PENDING],Anchor.objects.filter(receiver_email=request.user.email).filter(status=Anchor.PENDING).order_by("created_at")],
+            [["received",Anchor.DECLINED],Anchor.objects.filter(receiver_email=request.user.email).filter(status=Anchor.DECLINED).order_by("created_at")],
         ]
         for item in y:
             key = item[0]
@@ -50,16 +45,51 @@ class AnchorsView(APIView):
 
         return Response(rv)
 
+    def activePartners(self,user):
+        rv = {}
+        for anchor in Anchor.objects.filter(Q(passer=user) | Q(receiver=user)).\
+          filter(status=Anchor.ACTIVE).order_by('created_at'):
+            rv[anchor.partner(user)] = 0
+        return list(rv.keys())
+
+    def getAnchor(self,partner,skill):
+        try:
+            return Anchor.objects.get(passer=partner, skill=skill)
+        except:
+            try:
+                return Anchor.objects.get(receiver=partner, skill=skill)
+            except:
+                return None
+
+    def skillView(self, request):
+        try:
+            skill = Skill.objects.get(name=request.GET['skill'])
+        except:
+           return Response(f"No skill called {request.GET['skill']} in DB",status=status.HTTP_400_BAD_REQUEST)
+        rv=[]
+        for partner in self.activePartners(request.user):
+            anchor = self.getAnchor(partner,skill)
+            item = { "initials":partner.initials(),
+                     "level": None
+                   }
+            if anchor is not None:
+                item['level'] = anchor.level.name
+            rv.append(item)
+        return Response(rv, status=status.HTTP_200_OK)
+
     def get(self, request, filter=None, format=None):
         # try:
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         if filter is None:
-            return self.prettyAnchorView(request)
+            if request.GET.get('skill'):
+                return self.skillView(request)
+            else:
+                return self.prettyAnchorView(request)
         elif filter == 'sent':
-            anchors = Anchor.objects.filter(passer=request.user,status='pending')
+            anchors = Anchor.objects.filter(passer=request.user,status=Anchor.PENDING)
         elif filter == 'received':
-            anchors = Anchor.objects.filter(receiver_email=request.user.email,status='pending')
+            anchors = Anchor.objects.filter(receiver_email=request.user.email,status=Anchor.PENDING)
         elif filter == 'all':
             anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver_email=request.user.email))
         else:
@@ -124,12 +154,12 @@ class AnchorView(APIView):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         item = self.get_(id)
         if action == 'accept' and item.receiver_email == request.user.email:
-            item.status = 'active'
+            item.status = Anchor.ACTIVE
             item.receiver = request.user
         elif action == 'decline' and item.receiver_email == request.user.email:
-            item.status = 'declined'
+            item.status = Anchor.DECLINED
         elif action == 'cancel' and item.passer == request.user:
-            item.status = 'cancelled'
+            item.status = Anchor.CANCELLED
         else:
             return Response('Not a valid request',status=status.HTTP_400_BAD_REQUEST)
         item.save()
