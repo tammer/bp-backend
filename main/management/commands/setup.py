@@ -10,14 +10,15 @@ class Command(BaseCommand):
     help = 'Load some data into a clean DB'
 
     def handle(self, *args, **options):
-        #
-        # Attributes
-        #
         Category.objects.all().delete()
         Attribute.objects.all().delete()
         Skill.objects.all().delete()
         Level.objects.all().delete()
         BPUser.objects.all().delete()
+
+#
+        # Attributes
+        #
         category = ''
         with open('./main/management/commands/attributes.txt') as file:
             while (line := file.readline().rstrip()):
@@ -48,7 +49,7 @@ class Command(BaseCommand):
         # Users
         #
         BPUser.objects.create_superuser(username='admin',email='admin@tammer.com',password='123')
-        for i in ('ross@quandl.com','najwa@quandl.com'):
+        for i in ('ross@quandl.com','najwa@quandl.com','sam@quandl.com'):
             u = BPUser.objects.create_user(
                 username="U"+i,
                 password="123",
