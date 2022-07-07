@@ -12,7 +12,7 @@ class AssessmentsView(APIView):
     def get(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        assessments = Assessment.objects.filter(owner=request.user)
+        assessments = Assessment.objects.filter(owner=request.user).order_by("id")
         serializer = AssessmentSerializer(assessments,many=True)
         requiredSkills = Profile.objects.get(owner=request.user).skills()
         requiredSkillIDs = list(map(lambda x: x.id, requiredSkills))
