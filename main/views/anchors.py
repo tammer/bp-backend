@@ -69,8 +69,10 @@ class AnchorsView(APIView):
         rv=[]
         for partner in self.activePartners(request.user):
             anchor = self.getAnchor(partner,skill)
-            item = { "initials":partner.initials(),
-                     "level": None
+            item = { "initials": partner.initials(),
+                     "level": None,
+                     "full_name": partner.fullName(),
+                     "created_at": None if anchor is None else anchor.created_at
                    }
             if anchor is not None:
                 item['level'] = anchor.level.name

@@ -6,7 +6,10 @@ class BPUser(AbstractUser):
     email = models.EmailField(unique = True)
 
     def initials(self):
-        return self.email[0:2].upper()
+        return f"{self.first_name[0:1].upper()}{self.last_name[0:1].upper()}"
+    
+    def fullName(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return self.email

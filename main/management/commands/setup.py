@@ -49,8 +49,12 @@ class Command(BaseCommand):
         # Users
         #
         BPUser.objects.create_superuser(username='admin',email='admin@tammer.com',password='123')
-        for i in ('ross@quandl.com','najwa@quandl.com','sam@quandl.com'):
-            u = BPUser.objects.create_user(
-                username="U"+i,
+        l = [['Sam','Power'],['Najwa','Azer'],['Ross','Barclay']]
+        for i in l:
+            BPUser.objects.create_user(
+                username=i[0],
                 password="123",
-                email=i)
+                email=f"{i[0].lower()}@quandl.com",
+                first_name = i[0],
+                last_name = i[1])
+        
