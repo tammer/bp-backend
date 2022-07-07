@@ -1,7 +1,19 @@
 from rest_framework import serializers
 from .models import Attribute, Profile, Level,Skill
 from django.contrib.auth import authenticate
-from accounts.models import BPUser
+from accounts.models import BPUser,Invite
+
+class SignupSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    first_name = serializers.CharField() 
+    last_name = serializers.CharField()
+    code = serializers.CharField() 
+
+class InviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invite
+        fields = ('email',)
 
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:

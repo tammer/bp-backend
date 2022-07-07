@@ -20,6 +20,9 @@ from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('invites/', views.InvitesView.as_view()),
+    path('signup/', views.SignupView.as_view()),
+        # POST only
     path('attributes/<slug:category_name>/', views.Attributes.as_view()),
     path('levels/', views.LevelsView.as_view()),
     path('skills/', views.SkillsView.as_view()),

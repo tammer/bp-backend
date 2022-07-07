@@ -1,3 +1,8 @@
+if anchor exists then assessment should exist
+if you are anchored, then you can't go below
+
+
+
 requirements page should know when it has been udpated and only offer next button if that is the case.
 should also have a revert changes button
 
@@ -10,3 +15,7 @@ vulnerability:  someone POSTS new tech skills x 1e20.
 seems to be a vulnerability for any POST
 
 confirm modal for tech, but do generic confirm modal to use site wide.
+
+any button that writes to server should not be active on client until all loading is done!
+
+i dont think we use the /invite route
