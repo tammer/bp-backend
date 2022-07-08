@@ -1,7 +1,8 @@
-if anchor exists then assessment should exist
+also:  if you do a second anchor and an invite already exists!
+
 if you are anchored, then you can't go below
 
-
+what happens if you submit an anchor for a skill and person that you have already done?
 
 requirements page should know when it has been udpated and only offer next button if that is the case.
 should also have a revert changes button
@@ -23,5 +24,5 @@ i dont think we use the /invite route
 anchor created, invite sent, invite accepted, anchor cancelled before accepted??
 
 I am a member but ross sends invite to my other email address that BP doesn't know.
-
+    soln special login that takes invite code and converts the anchors to me and kills the invite
 
