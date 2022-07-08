@@ -1,6 +1,6 @@
 from accounts.models import BPUser,Invite
 from ..serializers import AnchorSerializer
-from ..models import Anchor,Skill,Level
+from ..models import Anchor,Skill,Level,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -126,6 +126,9 @@ class AnchorsView(APIView):
                         skill=Skill.objects.get(name=atts['skill']),
                         level=Level.objects.get(name=atts['level']))
             ai.save()
+            # If user does not have this anchor as a skill already, then add it
+            if not(Assessment.objects.filter(owner=request.user, skill=ai.skill).exists()):
+                Assessment(owner=request.user, skill=ai.skill,level=ai.level).save()
             return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
@@ -169,6 +172,9 @@ class AnchorView(APIView):
         if action == 'accept' and item.receiver == request.user:
             item.status = Anchor.ACTIVE
             item.receiver = request.user
+            item.receiver_invite = None
+            if not(Assessment.objects.filter(owner=request.user, skill=item.skill).exists()):
+                Assessment(owner=request.user, skill=item.skill,level=item.level).save() 
         elif action == 'decline' and item.receiver == request.user:
             item.status = Anchor.DECLINED
         elif action == 'cancel' and item.passer == request.user:
