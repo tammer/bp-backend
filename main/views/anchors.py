@@ -1,3 +1,4 @@
+from accounts.models import BPUser,Invite
 from ..serializers import AnchorSerializer
 from ..models import Anchor,Skill,Level
 from rest_framework.views import APIView
@@ -15,9 +16,9 @@ class AnchorsView(APIView):
         y = [
             [[Anchor.ACTIVE],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status=Anchor.ACTIVE)],
             [["sent",Anchor.PENDING],Anchor.objects.filter(passer=request.user).filter(status=Anchor.PENDING).order_by("created_at")],
-            [["sent",Anchor.DECLINED],Anchor.objects.filter(passer=request.user).filter(Q(status=Anchor.PENDING) | Q(status=Anchor.DECLINED)).order_by("created_at")],
-            [["received",Anchor.PENDING],Anchor.objects.filter(receiver_email=request.user.email).filter(status=Anchor.PENDING).order_by("created_at")],
-            [["received",Anchor.DECLINED],Anchor.objects.filter(receiver_email=request.user.email).filter(status=Anchor.DECLINED).order_by("created_at")],
+            [["sent",Anchor.DECLINED],Anchor.objects.filter(passer=request.user).filter(status=Anchor.DECLINED).order_by("created_at")],
+            [["received",Anchor.PENDING],Anchor.objects.filter(receiver=request.user).filter(status=Anchor.PENDING).order_by("created_at")],
+            [["received",Anchor.DECLINED],Anchor.objects.filter(receiver=request.user).filter(status=Anchor.DECLINED).order_by("created_at")],
         ]
         for item in y:
             key = item[0]
@@ -25,7 +26,7 @@ class AnchorsView(APIView):
             x = {}
             for anchor in anchors:
                 if anchor.passer == request.user:
-                    counterparty = anchor.receiver_email
+                    counterparty = anchor.receiver_email()
                 else:
                     counterparty = anchor.passer.email
                 if not(counterparty in x):
@@ -91,9 +92,9 @@ class AnchorsView(APIView):
         elif filter == 'sent':
             anchors = Anchor.objects.filter(passer=request.user,status=Anchor.PENDING)
         elif filter == 'received':
-            anchors = Anchor.objects.filter(receiver_email=request.user.email,status=Anchor.PENDING)
+            anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
         elif filter == 'all':
-            anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver_email=request.user.email))
+            anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user))
         else:
             return Response('Not a valid path',status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,8 +111,18 @@ class AnchorsView(APIView):
             serializer = AnchorSerializer(data=self.request.data,context={ 'request': self.request })
             serializer.is_valid(raise_exception=True)
             atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-            ai = Anchor( passer=request.user,
-                        receiver_email=atts['receiver_email'],
+            # is the receiver in the database?
+            try:
+                u = BPUser.objects.get(email=atts['receiver_email'])
+                ai = Anchor( passer=request.user,
+                        receiver=u,
+                        skill=Skill.objects.get(name=atts['skill']),
+                        level=Level.objects.get(name=atts['level']))
+            except:
+                i = Invite(email=atts['receiver_email'], created_by=request.user)
+                i.save()    
+                ai = Anchor( passer=request.user,
+                        receiver_invite=i,
                         skill=Skill.objects.get(name=atts['skill']),
                         level=Level.objects.get(name=atts['level']))
             ai.save()
@@ -135,7 +146,7 @@ class AnchorView(APIView):
             anchor = self.get_(id)
             if anchor is None:
                 return Response('anchor no existo',status=status.HTTP_400_BAD_REQUEST)
-            if anchor.passer != request.user and anchor.receiver_email != request.user.email:
+            if anchor.passer != request.user and anchor.receiver != request.user:
                 return Response('Not for you to see',status=status.HTTP_400_BAD_REQUEST)
             serializer = AnchorSerializer(anchor,many=False)
             return Response(serializer.data)
@@ -155,10 +166,10 @@ class AnchorView(APIView):
         if not(request.user.is_authenticated):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         item = self.get_(id)
-        if action == 'accept' and item.receiver_email == request.user.email:
+        if action == 'accept' and item.receiver == request.user:
             item.status = Anchor.ACTIVE
             item.receiver = request.user
-        elif action == 'decline' and item.receiver_email == request.user.email:
+        elif action == 'decline' and item.receiver == request.user:
             item.status = Anchor.DECLINED
         elif action == 'cancel' and item.passer == request.user:
             item.status = Anchor.CANCELLED

@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import BPUser
+from accounts.models import BPUser, Invite
 import json
 
 class Level(models.Model):
@@ -31,7 +31,7 @@ choices_ = (('pending','pending'),('active','active'),('declined','declined'),('
 class Anchor(models.Model):
     passer =  models.ForeignKey(BPUser, related_name='passer_anchor_table', on_delete=models.CASCADE)
     receiver =  models.ForeignKey(BPUser, related_name='receiver_anchor_table',  on_delete=models.CASCADE, null=True)
-    receiver_email = models.EmailField()
+    receiver_invite = models.ForeignKey(Invite, on_delete=models.CASCADE, null=True)
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     level = models.ForeignKey(Level,on_delete=models.CASCADE)
     status = models.CharField(choices=choices_, max_length=120, default='pending')
@@ -43,7 +43,13 @@ class Anchor(models.Model):
     EXPIRED = choices_[3][0]  
     CANCELLED = choices_[4][0]  
     class Meta:
-        unique_together = ('passer','receiver_email', 'skill',)
+        unique_together = ('passer','receiver', 'skill',)
+
+    def receiver_email(self):
+        if self.receiver is None:
+            return self.receiver_invite.email
+        else:
+            return receiver.email
 
     def partner(self,user):
         if self.passer == user:
