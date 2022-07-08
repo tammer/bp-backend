@@ -49,7 +49,7 @@ class Anchor(models.Model):
         if self.receiver is None:
             return self.receiver_invite.email
         else:
-            return receiver.email
+            return self.receiver.email
 
     def partner(self,user):
         if self.passer == user:
