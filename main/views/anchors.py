@@ -53,12 +53,12 @@ class AnchorsView(APIView):
             rv[anchor.partner(user)] = 0
         return list(rv.keys())
 
-    def getAnchor(self,partner,skill):
+    def getAnchor(self,partner,user, skill):
         try:
-            return Anchor.objects.get(passer=partner, skill=skill)
+            return Anchor.objects.get(passer=partner, receiver=user, skill=skill)
         except:
             try:
-                return Anchor.objects.get(receiver=partner, skill=skill)
+                return Anchor.objects.get(receiver=partner, passer=user, skill=skill)
             except:
                 return None
 
@@ -69,7 +69,7 @@ class AnchorsView(APIView):
            return Response(f"No skill called {request.GET['skill']} in DB",status=status.HTTP_400_BAD_REQUEST)
         rv=[]
         for partner in self.activePartners(request.user):
-            anchor = self.getAnchor(partner,skill)
+            anchor = self.getAnchor(partner,request.user, skill)
             item = { "initials": partner.initials(),
                      "level": None,
                      "full_name": partner.fullName(),
