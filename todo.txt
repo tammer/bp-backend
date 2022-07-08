@@ -19,3 +19,9 @@ confirm modal for tech, but do generic confirm modal to use site wide.
 any button that writes to server should not be active on client until all loading is done!
 
 i dont think we use the /invite route
+
+anchor created, invite sent, invite accepted, anchor cancelled before accepted??
+
+I am a member but ross sends invite to my other email address that BP doesn't know.
+
+
