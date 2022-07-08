@@ -2,6 +2,8 @@ also:  if you do a second anchor and an invite already exists!
 
 if you are anchored, then you can't go below
 
+2 anchors same skill, different levels
+
 what happens if you submit an anchor for a skill and person that you have already done?
 
 requirements page should know when it has been udpated and only offer next button if that is the case.
