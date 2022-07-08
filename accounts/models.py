@@ -7,13 +7,6 @@ class BPUser(AbstractUser):
 
     email = models.EmailField(unique = True)
 
-    def __init__(self, *args, **kwargs) -> None:
-        if len(args)==0 and "username" not in kwargs and "email" in kwargs:
-            uname = "U"+kwargs['email']
-            super().__init__(username=uname, **kwargs)
-        else:
-            super().__init__(*args, **kwargs) 
-
     def initials(self):
         return f"{self.first_name[0:1].upper()}{self.last_name[0:1].upper()}"
     
