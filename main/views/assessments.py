@@ -13,12 +13,13 @@ class AssessmentsView(APIView):
     def get(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        requiredSkills = Profile.objects.get(owner=request.user).skills()
         assessments = Assessment.objects.filter(owner=request.user).order_by("id")
         for assessment in assessments:
             m = highestAnchorLevel(request.user, assessment.skill)
             assessment.min_level = m
+            requiredSkills.append(assessment.skill)
         serializer = AssessmentSerializer(assessments,many=True)
-        requiredSkills = Profile.objects.get(owner=request.user).skills()
         requiredSkillIDs = list(map(lambda x: x.id, requiredSkills))
         for i in serializer.data:
             if i['skill']['id'] in requiredSkillIDs:
