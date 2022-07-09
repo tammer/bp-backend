@@ -7,6 +7,10 @@ class Level(models.Model):
     name = models.CharField(max_length=120,unique=True)
     def __str__(self):
         return self.name
+    def __gt__(self, other):
+        return self.id > other.id
+    def __lt__(self,other):
+        return self.id < other.id
 
 class Skill(models.Model):
     name = models.CharField(max_length=120,unique=True)

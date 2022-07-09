@@ -7,12 +7,16 @@ from rest_framework.parsers import JSONParser
 import io
 from rest_framework.renderers import JSONRenderer
 from django.http import JsonResponse
+from main.utils import highestAnchorLevel
 
 class AssessmentsView(APIView):
     def get(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         assessments = Assessment.objects.filter(owner=request.user).order_by("id")
+        for assessment in assessments:
+            m = highestAnchorLevel(request.user, assessment.skill)
+            assessment.min_level = m
         serializer = AssessmentSerializer(assessments,many=True)
         requiredSkills = Profile.objects.get(owner=request.user).skills()
         requiredSkillIDs = list(map(lambda x: x.id, requiredSkills))
@@ -22,6 +26,7 @@ class AssessmentsView(APIView):
             else:
                 i['required'] = False
         return Response(serializer.data)
+
     def post(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
@@ -82,6 +87,9 @@ class AssessmentView(APIView):
                     item.level = Level.objects.get(id=atts['level']['id'])
                 else:
                     item.level = Level.objects.get(name=atts['level']['name'])
+            benchmark = highestAnchorLevel(request.user, item.skill)
+            if item.level < benchmark:
+                item.level = benchmark
             item.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
