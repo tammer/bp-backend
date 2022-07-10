@@ -18,7 +18,7 @@ class BPUser(AbstractUser):
 
 class Invite(models.Model):
     email = models.EmailField(unique = True)
-    code = models.CharField(max_length=8)
+    code = models.CharField(max_length=8, unique=True)
     created_by = models.ForeignKey(BPUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_by = models.ForeignKey(BPUser, null=True, related_name='accepted_by_table', on_delete=models.CASCADE)
