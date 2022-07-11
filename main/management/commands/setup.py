@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from accounts.models import BPUser
-from main.models import Level, Skill,Attribute,Category
+from main.models import Skill,Attribute,Category
 import requests
 import re
 
@@ -13,7 +13,6 @@ class Command(BaseCommand):
         Category.objects.all().delete()
         Attribute.objects.all().delete()
         Skill.objects.all().delete()
-        Level.objects.all().delete()
         BPUser.objects.all().delete()
 
 #
@@ -38,12 +37,6 @@ class Command(BaseCommand):
             if len(i) > 0:
                 print(i)
                 Skill(name=i).save()
-
-        #
-        # Levels
-        #
-        for idx, x in enumerate(['novice','capable','proficient','expert','authority']):
-            Level(id=idx+1, name=x).save()
 
         #
         # Users

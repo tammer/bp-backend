@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Attribute, Profile, Level,Skill
+from .models import Attribute, Profile, Skill
 from django.contrib.auth import authenticate
 from accounts.models import BPUser,Invite
 
@@ -20,26 +20,21 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = ('id','name')
 
-class LevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Level
-        fields = ('id','name')
-
 class AssessmentSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
     skill = SkillSerializer(required=False)
-    level = LevelSerializer(required=False)
-    min_level = LevelSerializer(required=False)
+    level = serializers.IntegerField(required=False)
+    min_level = serializers.IntegerField(required=False)
 
-class AnchorSerializer(serializers.Serializer):
-    id = serializers.IntegerField(required=False)
-    passer = serializers.EmailField(required=False)
-    receiver_email = serializers.EmailField()
-    skill = serializers.CharField()
-    level = serializers.CharField()
-    status = serializers.CharField(required=False)
-    created_at = serializers.DateTimeField(required=False)
-    updated_at = serializers.DateTimeField(required=False)
+# class AnchorSerializer(serializers.Serializer):
+#     id = serializers.IntegerField(required=False)
+#     passer = serializers.EmailField(required=False)
+#     receiver_email = serializers.EmailField()
+#     skill = serializers.CharField()
+#     level = serializers.CharField()
+#     status = serializers.CharField(required=False)
+#     created_at = serializers.DateTimeField(required=False)
+#     updated_at = serializers.DateTimeField(required=False)
 
 class BPUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,11 +44,6 @@ class BPUserSerializer(serializers.ModelSerializer):
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attribute
-        fields = ('id', 'name',)
-
-class LevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Level
         fields = ('id', 'name',)
 
 class ProfileSerializer(serializers.ModelSerializer):

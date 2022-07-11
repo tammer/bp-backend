@@ -1,5 +1,5 @@
 from ..serializers import ProfileSerializer
-from ..models import Profile,Assessment,Level
+from ..models import Profile,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -36,7 +36,7 @@ class MyProfile(APIView):
         s = ProfileSerializer(profile, data=request.data)
         if s.is_valid():
             s.save()
-            defaultLevel = Level.objects.get(id=1)
+            defaultLevel = 0
             for skill in profile.skills():
                 if not(Assessment.objects.filter(owner=request.user, skill=skill).exists()):
                     Assessment(owner=request.user, skill=skill,level=defaultLevel).save()

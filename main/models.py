@@ -2,16 +2,6 @@ from django.db import models
 from accounts.models import BPUser, Invite
 import json
 
-class Level(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=120,unique=True)
-    def __str__(self):
-        return self.name
-    def __gt__(self, other):
-        return self.id > other.id
-    def __lt__(self,other):
-        return self.id < other.id
-
 class Skill(models.Model):
     name = models.CharField(max_length=120,unique=True)
     def __str__(self):
@@ -37,7 +27,7 @@ class Anchor(models.Model):
     receiver =  models.ForeignKey(BPUser, related_name='receiver_anchor_table',  on_delete=models.CASCADE, null=True)
     receiver_invite = models.ForeignKey(Invite, on_delete=models.CASCADE, null=True)
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
-    level = models.ForeignKey(Level,on_delete=models.CASCADE)
+    level = models.IntegerField()
     status = models.CharField(choices=choices_, max_length=120, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -80,7 +70,7 @@ class Profile(models.Model):
 class Assessment(models.Model):
     owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
-    level = models.ForeignKey(Level,on_delete=models.CASCADE)
+    level = models.IntegerField()
     class Meta:
         unique_together = ('owner','skill',)
 

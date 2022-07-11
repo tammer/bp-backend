@@ -1,7 +1,7 @@
 from accounts.models import BPUser
-from ..serializers import AttributeSerializer, LevelSerializer
+from ..serializers import AttributeSerializer
 from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
-from ..models import Attribute,Category,Profile,Skill,Level
+from ..models import Attribute,Category,Profile,Skill
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -46,14 +46,6 @@ class LogoutView(APIView):
             pass
         logout(request)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-class LevelsView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        levels = Level.objects.all().order_by('id')
-        serializer = LevelSerializer(levels,many=True)
-        return Response(serializer.data)
 
 class SkillsView(APIView):
     permission_classes = (permissions.AllowAny,)

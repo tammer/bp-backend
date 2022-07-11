@@ -1,6 +1,6 @@
 from accounts.models import BPUser,Invite
-from ..serializers import AnchorSerializer
-from ..models import Anchor,Skill,Level,Assessment
+# from ..serializers import AnchorSerializer
+from ..models import Anchor,Skill,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -117,14 +117,14 @@ class AnchorsView(APIView):
                 ai = Anchor( passer=request.user,
                         receiver=u,
                         skill=Skill.objects.get(name=atts['skill']),
-                        level=Level.objects.get(name=atts['level']))
+                        level=atts['level'])
             except:
                 i = Invite(email=atts['receiver_email'], created_by=request.user)
                 i.save()    
                 ai = Anchor( passer=request.user,
                         receiver_invite=i,
                         skill=Skill.objects.get(name=atts['skill']),
-                        level=Level.objects.get(name=atts['level']))
+                        level=atts['level'])
             ai.save()
             # If user does not have this anchor as a skill already, then add it
             if not(Assessment.objects.filter(owner=request.user, skill=ai.skill).exists()):

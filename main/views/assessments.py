@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from main.serializers import AssessmentSerializer
-from main.models import Profile, Skill,Level,Assessment
+from main.models import Profile, Skill,Assessment
 from rest_framework.parsers import JSONParser
 import io
 from rest_framework.renderers import JSONRenderer
@@ -13,7 +13,10 @@ class AssessmentsView(APIView):
     def get(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-        requiredSkills = Profile.objects.get(owner=request.user).skills()
+        try:
+            requiredSkills = Profile.objects.get(owner=request.user).skills()
+        except:
+            requiredSkills = []
         assessments = Assessment.objects.filter(owner=request.user).order_by("id")
         for assessment in assessments:
             m = highestAnchorLevel(request.user, assessment.skill)
@@ -34,9 +37,13 @@ class AssessmentsView(APIView):
         try:
             serializer = AssessmentSerializer(data=self.request.data,context={ 'request': self.request })
             atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
+            if 'id' in atts['skill']:
+                skill = Skill.objects.get(id=atts['skill']['id']) 
+            else:
+                skill = Skill.objects.get(name=atts['skill']['name']) 
             a = Assessment( owner=request.user,
-                            skill=Skill.objects.get(name=atts['skill']['name']),
-                            level=Level.objects.get(name=atts['level']['name']))
+                            skill=skill,
+                            level=atts['level'])
             a.save()
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
@@ -84,10 +91,7 @@ class AssessmentView(APIView):
             if "skill" in atts:
                 item.skill = Skill.objects.get(name=atts['skill']['name'])
             if "level" in atts:
-                if "id" in atts['level']:
-                    item.level = Level.objects.get(id=atts['level']['id'])
-                else:
-                    item.level = Level.objects.get(name=atts['level']['name'])
+                item.level = atts['level']
             benchmark = highestAnchorLevel(request.user, item.skill)
             if item.level < benchmark:
                 item.level = benchmark

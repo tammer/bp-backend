@@ -24,7 +24,6 @@ urlpatterns = [
     path('signup/', views.SignupView.as_view()),
         # POST only
     path('attributes/<slug:category_name>/', views.Attributes.as_view()),
-    path('levels/', views.LevelsView.as_view()),
     path('skills/', views.SkillsView.as_view()),
         # GET or POST to create a new one
     path('skills/<str:pattern>', views.SkillsView.as_view()),

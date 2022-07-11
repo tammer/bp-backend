@@ -1,9 +1,9 @@
-from main.models import Level, Anchor
+from main.models import Anchor
 from django.db.models import Q
 
 def highestAnchorLevel(user, skill):
-    level = Level.objects.get(id=1) # lowest level
+    level = 0
     for anchor in Anchor.objects.filter(Q(passer=user) | Q(receiver=user)).filter(skill=skill):
-        if anchor.level.id > level.id:
+        if anchor.level > level:
             level = anchor.level
     return level
