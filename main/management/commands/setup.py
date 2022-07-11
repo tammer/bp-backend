@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from accounts.models import BPUser
-from main.models import Skill,Attribute,Category
+from main.models import Skill,Attribute,Category,Endorsement
 import requests
 import re
 
@@ -14,6 +14,7 @@ class Command(BaseCommand):
         Attribute.objects.all().delete()
         Skill.objects.all().delete()
         BPUser.objects.all().delete()
+        Endorsement.objects.all().delete()
 
 #
         # Attributes
@@ -50,4 +51,12 @@ class Command(BaseCommand):
                 email=f"{i[0].lower()}@quandl.com",
                 first_name = i[0],
                 last_name = i[1])
+
+        #
+        # Endorsements
+        #
+        Endorsement(    owner=BPUser.objects.get(email='najwa@quandl.com'),
+                        counterparty=BPUser.objects.get(email='ross@quandl.com'),
+                        skill=Skill.objects.all().first(),
+                        level=50).save()
         

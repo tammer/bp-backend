@@ -25,6 +25,7 @@ class AssessmentSerializer(serializers.Serializer):
     skill = SkillSerializer(required=False)
     level = serializers.IntegerField(required=False)
     min_level = serializers.IntegerField(required=False)
+    max_level = serializers.IntegerField(required=False)
 
 # class AnchorSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(required=False)

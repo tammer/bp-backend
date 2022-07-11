@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from main.serializers import AssessmentSerializer
-from main.models import Profile, Skill,Assessment
+from main.models import Endorsement, Profile, Skill,Assessment
 from rest_framework.parsers import JSONParser
 import io
 from rest_framework.renderers import JSONRenderer
@@ -19,9 +19,14 @@ class AssessmentsView(APIView):
             requiredSkills = []
         assessments = Assessment.objects.filter(owner=request.user).order_by("id")
         for assessment in assessments:
-            m = highestAnchorLevel(request.user, assessment.skill)
-            assessment.min_level = m
-            requiredSkills.append(assessment.skill)
+            m = Endorsement.objects.highest(owner=request.user, skill=assessment.skill)
+            if m is not None:
+                assessment.min_level = max(0,m-20)
+                assessment.max_level = min(100,m+20)
+                requiredSkills.append(assessment.skill)
+            else:
+                assessment.min_level = 0
+                assessment.max_level = 100
         serializer = AssessmentSerializer(assessments,many=True)
         requiredSkillIDs = list(map(lambda x: x.id, requiredSkills))
         for i in serializer.data:

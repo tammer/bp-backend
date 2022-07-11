@@ -43,6 +43,9 @@ urlpatterns = [
     path('assessment/<int:id>',views.AssessmentView.as_view()),
         # GET, PUT, DELETE
 
+    path('endorsements/',views.EndorsementsView.as_view()),
+        # GET only
+
     path('anchors/',views.AnchorsView.as_view()),
         # POST here to pass an anchor (i.e. invite)
         # GET here to see all my active anchors
