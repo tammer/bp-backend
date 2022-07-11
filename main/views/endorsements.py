@@ -3,7 +3,6 @@ from ..models import Skill,Endorsement
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..utils import endorsers
 # import io
 # from rest_framework.parsers import JSONParser
 
@@ -22,7 +21,7 @@ class EndorsementsView(APIView):
         if skill is None:
             return Response(f"No skill: {request.GET['skill']} in DB",status=status.HTTP_400_BAD_REQUEST) 
         rv=[]
-        for cp in endorsers(request.user):
+        for cp in Endorsement.objects.endorsers(request.user):
             endorsement = Endorsement.objects.filter(owner=request.user, counterparty=cp, skill=skill).first()
             item = { "initials": cp.initials(),
                      "level": None,

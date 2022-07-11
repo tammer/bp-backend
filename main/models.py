@@ -42,6 +42,13 @@ class EndorsementManager(models.Manager):
             return None
         return l
 
+    def endorsers(self, user):
+        rv = []
+        for e in self.filter(owner=user).order_by('created_at'):
+            if e.counterparty not in rv:
+                rv.append(e.counterparty)
+        return rv
+
 class Endorsement(models.Model):
     # foreign key: Nomination or null?
     owner = models.ForeignKey(BPUser, related_name='owner_endorsement_table', on_delete=models.CASCADE)

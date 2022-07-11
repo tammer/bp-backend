@@ -7,10 +7,3 @@ def highestAnchorLevel(user, skill):
         if anchor.level > level:
             level = anchor.level
     return level
-
-def endorsers(user):
-    rv = []
-    for e in Endorsement.objects.filter(owner=user).order_by('created_at'):
-        if e.counterparty not in rv:
-            rv.append(e.counterparty)
-    return rv
