@@ -1,7 +1,7 @@
 from accounts.models import BPUser
 from ..serializers import AttributeSerializer
 from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
-from ..models import Attribute,Category,Profile,Skill
+from ..models import Attribute,Category,Profile,Skill,Endorsement
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,6 +13,23 @@ import io
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
 from itertools import chain
+
+class friendsView(APIView):
+    def get(self, request):
+        if not(request.user.is_authenticated):
+            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        # my endorsers and then add on email addresses in anchors pending
+        friends = []
+        for e in Endorsement.objects.endorsers(request.user):
+            friends.append({
+                'first_name':e.first_name,
+                'last_name':e.last_name,
+                'full_name':e.first_name + " " + e.last_name,
+                'display_name':e.first_name + " " + e.last_name + " <" + e.email +">",
+                'email':e.email,
+                'id':e.email
+            })
+        return Response(friends,status=status.HTTP_200_OK)
 
 class AccountView(APIView):
     permission_classes = (permissions.AllowAny,)

@@ -59,5 +59,8 @@ urlpatterns = [
 
     path('anchor/<int:id>/<slug:action>',views.AnchorView.as_view()),
         # PUT to "accept", "decline" or "cancel"
+    
+    path('friends/',views.friendsView.as_view())
+        # authenticated GET
 
     ]
