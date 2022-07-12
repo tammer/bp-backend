@@ -1,5 +1,5 @@
 from accounts.models import BPUser,Invite
-# from ..serializers import AnchorSerializer
+from ..serializers import AnchorSerializer
 from ..models import Anchor,Skill,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,7 +31,7 @@ class AnchorsView(APIView):
                     counterparty = anchor.passer.email
                 if not(counterparty in x):
                     x[counterparty] = {}
-                level = anchor.level.name
+                level = anchor.level
                 if not(level in x[counterparty]):
                     x[counterparty][level] = []
                 x[counterparty][level].append({"id": anchor.id, "skill":anchor.skill.name, "originated_by_me":anchor.passer == request.user})
@@ -105,33 +105,34 @@ class AnchorsView(APIView):
             # return Response('Something went wrong',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self,request,format=None):
+        # try:
+        if not(request.user.is_authenticated):
+            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        serializer = AnchorSerializer(data=self.request.data,context={ 'request': self.request })
+        serializer.is_valid(raise_exception=True)
+        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+        # is the receiver in the database?
         try:
-            if not(request.user.is_authenticated):
-                return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            serializer = AnchorSerializer(data=self.request.data,context={ 'request': self.request })
-            serializer.is_valid(raise_exception=True)
-            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-            # is the receiver in the database?
+            u = BPUser.objects.get(email=atts['receiver_email'])
             try:
-                u = BPUser.objects.get(email=atts['receiver_email'])
-                ai = Anchor( passer=request.user,
-                        receiver=u,
-                        skill=Skill.objects.get(name=atts['skill']),
-                        level=atts['level'])
-            except:
-                i = Invite(email=atts['receiver_email'], created_by=request.user)
-                i.save()    
-                ai = Anchor( passer=request.user,
-                        receiver_invite=i,
-                        skill=Skill.objects.get(name=atts['skill']),
-                        level=atts['level'])
-            ai.save()
-            # If user does not have this anchor as a skill already, then add it
-            if not(Assessment.objects.filter(owner=request.user, skill=ai.skill).exists()):
-                Assessment(owner=request.user, skill=ai.skill,level=ai.level).save()
-            return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
+                ai = Anchor.get(passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']))
+                ai.level = atts['level']
+            except Anchor.DoesNotExist:
+                ai = Anchor( passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']), level=atts['level'])
+        except:
+            i = Invite.objects.get_or_create(email=atts['receiver_email'], created_by=request.user)[0]
+            try:
+                ai = Anchor.objects.get(passer=request.user, receiver_invite=i,skill=Skill.objects.get(name=atts['skill']))
+                ai.level = atts['level']
+            except Anchor.DoesNotExist:
+                ai = Anchor( passer=request.user, receiver_invite=i, skill=Skill.objects.get(name=atts['skill']), level=atts['level']) 
+        ai.save()
+        # If user does not have this anchor as a skill already, then add it
+        if not(Assessment.objects.filter(owner=request.user, skill=ai.skill).exists()):
+            Assessment(owner=request.user, skill=ai.skill,level=ai.level).save()
+        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
+        # except Exception as e:
+        #     return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
 
 class AnchorView(APIView):
     def get_(self,id):
