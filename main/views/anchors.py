@@ -115,11 +115,11 @@ class AnchorsView(APIView):
         try:
             u = BPUser.objects.get(email=atts['receiver_email'])
             try:
-                ai = Anchor.get(passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']))
+                ai = Anchor.objects.get(passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']))
                 ai.level = atts['level']
             except Anchor.DoesNotExist:
                 ai = Anchor( passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']), level=atts['level'])
-        except:
+        except BPUser.DoesNotExist:
             i = Invite.objects.get_or_create(email=atts['receiver_email'], created_by=request.user)[0]
             try:
                 ai = Anchor.objects.get(passer=request.user, receiver_invite=i,skill=Skill.objects.get(name=atts['skill']))
