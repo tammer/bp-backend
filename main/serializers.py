@@ -27,15 +27,15 @@ class AssessmentSerializer(serializers.Serializer):
     min_level = serializers.IntegerField(required=False)
     max_level = serializers.IntegerField(required=False)
 
-# class AnchorSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(required=False)
-#     passer = serializers.EmailField(required=False)
-#     receiver_email = serializers.EmailField()
-#     skill = serializers.CharField()
-#     level = serializers.CharField()
-#     status = serializers.CharField(required=False)
-#     created_at = serializers.DateTimeField(required=False)
-#     updated_at = serializers.DateTimeField(required=False)
+class AnchorSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
+    passer = serializers.EmailField(required=False)
+    receiver_email = serializers.EmailField()
+    skill = serializers.CharField()
+    level = serializers.IntegerField(required=False)
+    status = serializers.CharField(required=False)
+    created_at = serializers.DateTimeField(required=False)
+    updated_at = serializers.DateTimeField(required=False)
 
 class BPUserSerializer(serializers.ModelSerializer):
     class Meta:
