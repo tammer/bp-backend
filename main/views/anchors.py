@@ -87,6 +87,17 @@ class AnchorsView(APIView):
             rv.append(item)
         return Response(rv, status=status.HTTP_200_OK)
 
+    def received_view(self, request):
+        anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
+        for anchor in anchors:
+            a = Assessment.objects.get_or_none(owner=request.user, skill=anchor.skill)
+            if a is None:
+                anchor.my_level = None
+            else:
+                anchor.my_level = a.level
+        serializer = AnchorSerializer(anchors,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
     def get(self, request, filter=None, format=None):
         # try:
         if not(request.user.is_authenticated):
@@ -99,7 +110,7 @@ class AnchorsView(APIView):
         elif filter == 'sent':
             anchors = Anchor.objects.filter(passer=request.user,status=Anchor.PENDING)
         elif filter == 'received':
-            anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
+            return self.received_view(request)
         elif filter == 'all':
             anchors = Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user))
         else:

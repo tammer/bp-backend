@@ -112,10 +112,18 @@ class Profile(models.Model):
         return rv
 
 
+class AssessmentManager(models.Manager):
+    def get_or_none(self, **kwargs):
+        try:
+            return self.get(**kwargs)
+        except Assessment.DoesNotExist:
+            return None
+
 class Assessment(models.Model):
     owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill,on_delete=models.CASCADE)
     level = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    objects = AssessmentManager()
     class Meta:
         unique_together = ('owner','skill',)
 

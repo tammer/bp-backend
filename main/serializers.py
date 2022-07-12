@@ -33,6 +33,7 @@ class AnchorSerializer(serializers.Serializer):
     receiver_email = serializers.EmailField()
     skill = serializers.CharField()
     level = serializers.IntegerField(required=False)
+    my_level = serializers.IntegerField(required=False)
     status = serializers.CharField(required=False)
     created_at = serializers.DateTimeField(required=False)
     updated_at = serializers.DateTimeField(required=False)
