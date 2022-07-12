@@ -1,4 +1,4 @@
-from accounts.models import BPUser
+from accounts.models import BPUser, Invite
 from ..serializers import AttributeSerializer
 from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
 from ..models import Attribute,Category,Profile,Skill,Endorsement
@@ -27,8 +27,14 @@ class friendsView(APIView):
                 'full_name':e.first_name + " " + e.last_name,
                 'display_name':e.first_name + " " + e.last_name + " <" + e.email +">",
                 'email':e.email,
-                'id':e.email
-            })
+                'id':e.email,
+                })
+
+        for i in Invite.objects.filter(created_by=request.user):
+            friends.append({
+                'display_name': i.email,
+                'email':i.email,
+                'id':i.email})
         return Response(friends,status=status.HTTP_200_OK)
 
 class AccountView(APIView):
