@@ -1,6 +1,6 @@
 from accounts.models import BPUser,Invite
 from ..serializers import AnchorSerializer
-from ..models import Anchor,Skill,Assessment
+from ..models import Anchor, Endorsement,Skill,Assessment
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +14,7 @@ class AnchorsView(APIView):
     def prettyAnchorView(self,request):
         rv = {}
         y = [
-            [[Anchor.ACTIVE],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status=Anchor.ACTIVE)],
+            [[Anchor.ACCEPTED],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status=Anchor.ACCEPTED)],
             [["sent",Anchor.PENDING],Anchor.objects.filter(passer=request.user).filter(status=Anchor.PENDING).order_by("created_at")],
             [["sent",Anchor.DECLINED],Anchor.objects.filter(passer=request.user).filter(status=Anchor.DECLINED).order_by("created_at")],
             [["received",Anchor.PENDING],Anchor.objects.filter(receiver=request.user).filter(status=Anchor.PENDING).order_by("created_at")],
@@ -49,7 +49,7 @@ class AnchorsView(APIView):
     def activePartners(self,user):
         rv = {}
         for anchor in Anchor.objects.filter(Q(passer=user) | Q(receiver=user)).\
-          filter(status=Anchor.ACTIVE).order_by('created_at'):
+          filter(status=Anchor.ACCEPTED).order_by('created_at'):
             rv[anchor.partner(user)] = 0
         return list(rv.keys())
 
@@ -171,11 +171,13 @@ class AnchorView(APIView):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         item = self.get_(id)
         if action == 'accept' and item.receiver == request.user:
-            item.status = Anchor.ACTIVE
-            item.receiver = request.user
-            item.receiver_invite = None
+            item.status = Anchor.ACCEPTED
+            # item.receiver = request.user
+            # item.receiver_invite = None
             if not(Assessment.objects.filter(owner=request.user, skill=item.skill).exists()):
-                Assessment(owner=request.user, skill=item.skill,level=item.level).save() 
+                Assessment(owner=request.user, skill=item.skill,level=item.level).save()
+            Endorsement.objects.create(anchor=item, owner=request.user, counterparty=item.passer, skill=item.skill,level=item.level)
+            Endorsement.objects.create(anchor=item, owner=item.passer, counterparty=request.user, skill=item.skill,level=item.level)
         elif action == 'decline' and item.receiver == request.user:
             item.status = Anchor.DECLINED
         elif action == 'cancel' and item.passer == request.user:
