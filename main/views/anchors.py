@@ -12,6 +12,7 @@ from django.db.models import Q
 
 class AnchorsView(APIView):
     def prettyAnchorView(self,request):
+        collapsed = False
         rv = {}
         y = [
             [[Anchor.ACCEPTED],Anchor.objects.filter(Q(passer=request.user) | Q(receiver=request.user)).filter(status=Anchor.ACCEPTED)],
@@ -30,11 +31,17 @@ class AnchorsView(APIView):
                 else:
                     counterparty = anchor.passer.email
                 if not(counterparty in x):
-                    x[counterparty] = {}
-                level = anchor.level
-                if not(level in x[counterparty]):
-                    x[counterparty][level] = []
-                x[counterparty][level].append({"id": anchor.id, "skill":anchor.skill.name, "originated_by_me":anchor.passer == request.user})
+                    if(collapsed):
+                        x[counterparty] = []
+                    else:
+                        x[counterparty] = {}
+                if( collapsed ):
+                    x[counterparty].append({"id": anchor.id, "skill":anchor.skill.name, "level":anchor.level, "originated_by_me":anchor.passer == request.user})
+                else:
+                    level = anchor.level
+                    if not(level in x[counterparty]):
+                        x[counterparty][level] = []
+                    x[counterparty][level].append({"id": anchor.id, "skill":anchor.skill.name, "originated_by_me":anchor.passer == request.user})
             if len(key) == 1:
                 rv[key[0]] = x
             else:
