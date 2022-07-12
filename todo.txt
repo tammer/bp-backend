@@ -26,3 +26,7 @@ anchor created, invite sent, invite accepted, anchor cancelled before accepted??
 I am a member but ross sends invite to my other email address that BP doesn't know.
     soln special login that takes invite code and converts the anchors to me and kills the invite
 
+will probably need to mechanism to ensure next page does not load until POST is done.
+
+edge:
+    invite can't persist if all anchors invites are deleted by originator.
