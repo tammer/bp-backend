@@ -93,8 +93,11 @@ class AnchorsView(APIView):
             a = Assessment.objects.get_or_none(owner=request.user, skill=anchor.skill)
             if a is None:
                 anchor.my_level = None
+                anchor.confirmable = True
             else:
                 anchor.my_level = a.level
+                delta = anchor.my_level - anchor.level
+                anchor.confirmable = True if delta <= 20 and delta >= -20 else False
         serializer = AnchorSerializer(anchors,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
