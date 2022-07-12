@@ -84,6 +84,7 @@ class Anchor(models.Model):
     CANCELLED = choices_[4][0]  
     class Meta:
         unique_together = ('passer','receiver', 'skill',)
+        unique_together = ('passer','receiver_invite', 'skill',)
 
     def receiver_email(self):
         if self.receiver is None:
