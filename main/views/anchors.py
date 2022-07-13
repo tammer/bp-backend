@@ -79,7 +79,7 @@ class AnchorsView(APIView):
             anchor = self.getAnchor(partner,request.user, skill)
             item = { "initials": partner.initials(),
                      "level": None,
-                     "full_name": partner.fullName(),
+                     "full_name": partner.full_name(),
                      "created_at": None if anchor is None else anchor.created_at
                    }
             if anchor is not None:
@@ -100,6 +100,7 @@ class AnchorsView(APIView):
 
         anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
         for anchor in anchors:
+            anchor.passer_display_name = anchor.passer.full_name()
             a = Assessment.objects.get_or_none(owner=request.user, skill=anchor.skill)
             if a is None:
                 anchor.my_level = None
