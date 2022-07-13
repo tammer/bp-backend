@@ -25,7 +25,7 @@ class EndorsementsView(APIView):
             endorsement = Endorsement.objects.filter(owner=request.user, counterparty=cp, skill=skill).first()
             item = { "initials": cp.initials(),
                      "level": None,
-                     "full_name": cp.fullName(),
+                     "full_name": cp.full_name(),
                      "created_at": None if endorsement is None else endorsement.created_at
                    }
             if endorsement is not None:

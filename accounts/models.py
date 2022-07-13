@@ -10,7 +10,7 @@ class BPUser(AbstractUser):
     def initials(self):
         return f"{self.first_name[0:1].upper()}{self.last_name[0:1].upper()}"
     
-    def fullName(self):
+    def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
