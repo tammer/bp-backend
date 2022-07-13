@@ -97,9 +97,9 @@ class AssessmentView(APIView):
                 item.skill = Skill.objects.get(name=atts['skill']['name'])
             if "level" in atts:
                 item.level = atts['level']
-            benchmark = highestAnchorLevel(request.user, item.skill)
-            if item.level < benchmark:
-                item.level = benchmark
+            # benchmark = highestAnchorLevel(request.user, item.skill)
+            # if item.level < benchmark:
+            #     item.level = benchmark
             item.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:

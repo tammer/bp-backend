@@ -35,6 +35,7 @@ class AnchorSerializer(serializers.Serializer):
     level = serializers.IntegerField(required=False)
     my_level = serializers.IntegerField(required=False)
     confirmable = serializers.BooleanField(required=False)
+    confirm_range = serializers.DictField(required=False)
     status = serializers.CharField(required=False)
     created_at = serializers.DateTimeField(required=False)
     updated_at = serializers.DateTimeField(required=False)

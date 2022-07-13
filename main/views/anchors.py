@@ -88,6 +88,16 @@ class AnchorsView(APIView):
         return Response(rv, status=status.HTTP_200_OK)
 
     def received_view(self, request):
+        MARGIN = 15
+        def calc(me,cp):
+            delta = me - cp
+            if delta > 0:
+                gamma = (MARGIN - delta)/2
+                return {'lb': max(0,cp-gamma), 'ub':min(100,me+gamma)}
+            else:
+                gamma = (MARGIN + delta)/2
+                return {'lb': max(0,me-gamma), 'ub':min(100,cp+gamma)}
+
         anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
         for anchor in anchors:
             a = Assessment.objects.get_or_none(owner=request.user, skill=anchor.skill)
@@ -97,7 +107,9 @@ class AnchorsView(APIView):
             else:
                 anchor.my_level = a.level
                 delta = anchor.my_level - anchor.level
-                anchor.confirmable = True if delta <= 20 and delta >= -20 else False
+                anchor.confirmable = True if delta <= MARGIN and delta >= -MARGIN else False
+                if anchor.confirmable:
+                    anchor.confirm_range = calc(anchor.my_level, anchor.level)
         serializer = AnchorSerializer(anchors,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
