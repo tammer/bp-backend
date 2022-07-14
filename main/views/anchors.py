@@ -154,6 +154,8 @@ class AnchorsView(APIView):
         # is the receiver in the database?
         try:
             u = BPUser.objects.get(email=atts['receiver_email'])
+            if Anchor.objects.filter(passer=u, receiver=request.user, skill=skill).filter(status= Anchor.ACCEPTED).first():
+                return Response({"error_message":"Invite not created because you are already endorsed by this person on this skill"}, status=status.HTTP_400_BAD_REQUEST)
             if Anchor.objects.filter(passer=u, receiver=request.user, skill=skill).filter(~Q(status= Anchor.DECLINED)).first():
                 return Response({"error_message":"Invite not created because there is already an invite to you from this person on this skill"}, status=status.HTTP_400_BAD_REQUEST)
             try:
