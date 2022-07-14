@@ -152,9 +152,15 @@ class AnchorsView(APIView):
         # is the receiver in the database?
         try:
             u = BPUser.objects.get(email=atts['receiver_email'])
+            if Anchor.objects.filter(passer=u, receiver=request.user, skill=skill).filter(~Q(status= Anchor.DECLINED)).first():
+                return Response("Anchor exists in the other direction", status=status.HTTP_400_BAD_REQUEST)
             try:
                 ai = Anchor.objects.get(passer=request.user, receiver=u, skill=skill)
-                ai.level = useLevel
+                if ai.status == Anchor.ACCEPTED:
+                    return Response("This anchor is active",status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    ai.level = useLevel
+                    ai.status = Anchor.PENDING
             except Anchor.DoesNotExist:
                 ai = Anchor( passer=request.user, receiver=u, skill=skill, level=useLevel)
         except BPUser.DoesNotExist:
