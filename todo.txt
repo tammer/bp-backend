@@ -1,6 +1,7 @@
 Now-ish
 
 - currently you can send an anchor to someone you already have an anchor with
+/friends should include people who I have sent to once already but have not accepted yet
 
 
 also:  if you do a second anchor and an invite already exists!
