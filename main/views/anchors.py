@@ -101,10 +101,12 @@ class AnchorsView(APIView):
         anchors = Anchor.objects.filter(receiver=request.user,status=Anchor.PENDING)
         for anchor in anchors:
             anchor.passer_display_name = anchor.passer.full_name()
+            anchor.passer_first_name = anchor.passer.first_name
             a = Assessment.objects.get_or_none(owner=request.user, skill=anchor.skill)
             if a is None:
                 anchor.my_level = None
                 anchor.confirmable = True
+                anchor.confirm_range = {'lb':max(0,anchor.level-10), 'ub':min(100,anchor.level+10)}
             else:
                 anchor.my_level = a.level
                 delta = anchor.my_level - anchor.level
@@ -145,25 +147,24 @@ class AnchorsView(APIView):
         serializer = AnchorSerializer(data=self.request.data,context={ 'request': self.request })
         serializer.is_valid(raise_exception=True)
         atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+        skill = Skill.objects.get(name=atts['skill']) 
+        useLevel = Assessment.objects.get(owner=request.user, skill=skill).level
         # is the receiver in the database?
         try:
             u = BPUser.objects.get(email=atts['receiver_email'])
             try:
-                ai = Anchor.objects.get(passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']))
-                ai.level = atts['level']
+                ai = Anchor.objects.get(passer=request.user, receiver=u, skill=skill)
+                ai.level = useLevel
             except Anchor.DoesNotExist:
-                ai = Anchor( passer=request.user, receiver=u, skill=Skill.objects.get(name=atts['skill']), level=atts['level'])
+                ai = Anchor( passer=request.user, receiver=u, skill=skill, level=useLevel)
         except BPUser.DoesNotExist:
             i = Invite.objects.get_or_create(email=atts['receiver_email'], created_by=request.user)[0]
             try:
-                ai = Anchor.objects.get(passer=request.user, receiver_invite=i,skill=Skill.objects.get(name=atts['skill']))
-                ai.level = atts['level']
+                ai = Anchor.objects.get(passer=request.user, receiver_invite=i,skill=skill)
+                ai.level = useLevel
             except Anchor.DoesNotExist:
-                ai = Anchor( passer=request.user, receiver_invite=i, skill=Skill.objects.get(name=atts['skill']), level=atts['level']) 
+                ai = Anchor( passer=request.user, receiver_invite=i, skill=skill, level=useLevel) 
         ai.save()
-        # If user does not have this anchor as a skill already, then add it
-        if not(Assessment.objects.filter(owner=request.user, skill=ai.skill).exists()):
-            Assessment(owner=request.user, skill=ai.skill,level=ai.level).save()
         return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
         # except Exception as e:
         #     return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
