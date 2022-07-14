@@ -126,7 +126,9 @@ class AnchorsView(APIView):
             else:
                 return self.prettyAnchorView(request)
         elif filter == 'sent':
-            anchors = Anchor.objects.filter(passer=request.user,status=Anchor.PENDING)
+            anchors = Anchor.objects.filter(passer=request.user).filter(Q(status=Anchor.PENDING) | Q(status=Anchor.DECLINED)).order_by("-status",'updated_at')
+            for anchor in anchors:
+                anchor.receiver_display_name = anchor.receiver.full_name() if anchor.receiver else anchor.receiver_invite.email
         elif filter == 'received':
             return self.received_view(request)
         elif filter == 'all':
@@ -153,11 +155,11 @@ class AnchorsView(APIView):
         try:
             u = BPUser.objects.get(email=atts['receiver_email'])
             if Anchor.objects.filter(passer=u, receiver=request.user, skill=skill).filter(~Q(status= Anchor.DECLINED)).first():
-                return Response("Anchor exists in the other direction", status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error_message":"Invite not created because there is already an invite to you from this person on this skill"}, status=status.HTTP_400_BAD_REQUEST)
             try:
                 ai = Anchor.objects.get(passer=request.user, receiver=u, skill=skill)
                 if ai.status == Anchor.ACCEPTED:
-                    return Response("This anchor is active",status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error_message":"Invite not created because you are already endorsed by this person on this skill"},status=status.HTTP_400_BAD_REQUEST)
                 else:
                     ai.level = useLevel
                     ai.status = Anchor.PENDING
@@ -171,7 +173,7 @@ class AnchorsView(APIView):
             except Anchor.DoesNotExist:
                 ai = Anchor( passer=request.user, receiver_invite=i, skill=skill, level=useLevel) 
         ai.save()
-        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
+        return Response({"status":"created"}, status=status.HTTP_201_CREATED)
         # except Exception as e:
         #     return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
 

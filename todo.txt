@@ -1,11 +1,18 @@
 Now-ish
 
+you can not delete an accepted anchor.  has to be pending.
+
 - currently you can send an anchor to someone you already have an anchor with
 /friends should include people who I have sent to once already but have not accepted yet
+
+Living with:  the anchor will not re-render when you accept an endorsement.
+i assume the whole thing will get refactoreed at some point,
+so not worrying baout it now.
 
 
 also:  if you do a second anchor and an invite already exists!
 
+will need a max invites sent at some point
 
 2 anchors same skill, different levels
 
