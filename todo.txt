@@ -1,3 +1,5 @@
+it does the jiggly thing because it flashes the word loading!
+
 Now-ish
 
 you can not delete an accepted anchor.  has to be pending.

@@ -1,3 +1,4 @@
+from os import stat
 from accounts.models import BPUser, Invite
 from ..serializers import AttributeSerializer
 from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
@@ -97,6 +98,7 @@ class SkillsView(APIView):
             return JsonResponse({"id":y.id}, status=status.HTTP_201_CREATED)
 
 
+### IS THIS USED???
 class Attributes(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -108,3 +110,21 @@ class Attributes(APIView):
             return Response(serializer.data)
         except:
             return Response('bad category name perhaps?',status=status.HTTP_400_BAD_REQUEST)
+
+class CredibilityView(APIView):
+
+    def get(self, request):
+        if not(request.user.is_authenticated):
+            return Response('you dont exist',status=status.HTTP_401_UNAUTHORIZED)
+        endorsements = Endorsement.objects.filter(owner=request.user).count()
+        endorsers = Endorsement.objects.filter(owner=request.user).values('counterparty').distinct().count()
+        credibility = (endorsements**0.5) * (endorsers**0.5) / (6/1.15)
+        rv = {
+            'endorsers': endorsers,
+            'endorsements': endorsements,
+            'credibility': int(round(100. * credibility,0)),
+        }
+        return Response(rv,status=status.HTTP_200_OK)
+
+
+

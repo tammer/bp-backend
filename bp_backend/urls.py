@@ -46,6 +46,9 @@ urlpatterns = [
     path('endorsements/',views.EndorsementsView.as_view()),
         # GET only
 
+    path('credibility/',views.CredibilityView.as_view()),
+        # authenticated GET only
+
     path('anchors/',views.AnchorsView.as_view()),
         # POST here to pass an anchor (i.e. invite)
         # GET here to see all my active anchors
