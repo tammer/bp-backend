@@ -45,6 +45,9 @@ urlpatterns = [
 
     path('endorsements/',views.EndorsementsView.as_view()),
         # GET only
+    
+    path('endorsement/<slug:action>/<int:id>/',views.EndorsementView.as_view()),
+        # authenticated PUT. action can be activate or deactivate
 
     path('credibility/',views.CredibilityView.as_view()),
         # authenticated GET only
