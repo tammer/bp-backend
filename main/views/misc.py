@@ -98,18 +98,18 @@ class SkillsView(APIView):
             return JsonResponse({"id":y.id}, status=status.HTTP_201_CREATED)
 
 
-### IS THIS USED???
-class Attributes(APIView):
-    permission_classes = (permissions.AllowAny,)
+# note used as of July 15, 2022
+# class Attributes(APIView):
+#     permission_classes = (permissions.AllowAny,)
 
-    def get(self, request, category_name):
-        try:
-            category = Category.objects.get(name=category_name)
-            attributes = Attribute.objects.filter(category=category)
-            serializer = AttributeSerializer(attributes,many=True)
-            return Response(serializer.data)
-        except:
-            return Response('bad category name perhaps?',status=status.HTTP_400_BAD_REQUEST)
+#     def get(self, request, category_name):
+#         try:
+#             category = Category.objects.get(name=category_name)
+#             attributes = Attribute.objects.filter(category=category)
+#             serializer = AttributeSerializer(attributes,many=True)
+#             return Response(serializer.data)
+#         except:
+#             return Response('bad category name perhaps?',status=status.HTTP_400_BAD_REQUEST)
 
 class CredibilityView(APIView):
 
