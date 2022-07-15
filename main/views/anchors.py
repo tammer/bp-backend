@@ -126,7 +126,7 @@ class AnchorsView(APIView):
             else:
                 return self.prettyAnchorView(request)
         elif filter == 'sent':
-            anchors = Anchor.objects.filter(passer=request.user).filter(Q(status=Anchor.PENDING) | Q(status=Anchor.DECLINED)).order_by("-status",'updated_at')
+            anchors = Anchor.objects.filter(passer=request.user).order_by("-status",'updated_at')
             for anchor in anchors:
                 anchor.receiver_display_name = anchor.receiver.full_name() if anchor.receiver else anchor.receiver_invite.email
         elif filter == 'received':
