@@ -114,8 +114,8 @@ class CredibilityView(APIView):
     def get(self, request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_401_UNAUTHORIZED)
-        endorsements = Endorsement.objects.filter(owner=request.user).count()
-        endorsers = Endorsement.objects.filter(owner=request.user).values('counterparty').distinct().count()
+        endorsements = Endorsement.objects.filter(owner=request.user,is_active=True).count()
+        endorsers = Endorsement.objects.filter(owner=request.user, is_active=True).values('counterparty').distinct().count()
         credibility = (endorsements**0.5) * (endorsers**0.5) / (6/1.15)
         rv = {
             'endorsers': endorsers,

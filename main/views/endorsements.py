@@ -22,7 +22,7 @@ class EndorsementsView(APIView):
             return Response(f"No skill: {request.GET['skill']} in DB",status=status.HTTP_400_BAD_REQUEST) 
         rv=[]
         for cp in Endorsement.objects.endorsers(request.user):
-            endorsement = Endorsement.objects.filter(owner=request.user, counterparty=cp, skill=skill).first()
+            endorsement = Endorsement.objects.filter(owner=request.user, counterparty=cp, skill=skill, is_active=True).first()
             item = { "initials": cp.initials(),
                      "level": None,
                      "full_name": cp.full_name(),
