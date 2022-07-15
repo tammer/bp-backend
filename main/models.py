@@ -62,8 +62,8 @@ class Anchor(models.Model):
     PENDING = choices_[0][0] 
     ACCEPTED = choices_[1][0]
     DECLINED = choices_[2][0]  
-    EXPIRED = choices_[3][0]  
-    CANCELLED = choices_[4][0]  
+    # EXPIRED = choices_[3][0]  
+    # CANCELLED = choices_[4][0]  
     class Meta:
         unique_together = ('passer','receiver', 'skill',)
         unique_together = ('passer','receiver_invite', 'skill',)

@@ -98,7 +98,7 @@ class AnchorsView(APIView):
                 gamma = (MARGIN + delta)/2
                 return {'lb': max(0,me-gamma), 'ub':min(100,cp+gamma)}
 
-        anchors = Anchor.objects.filter(receiver=request.user).filter(Q(status=Anchor.PENDING) | Q(status=Anchor.DECLINED)).order_by('-status','-updated_at')
+        anchors = Anchor.objects.filter(receiver=request.user).order_by('-status','-updated_at')
         for anchor in anchors:
             anchor.passer_display_name = anchor.passer.full_name()
             anchor.passer_first_name = anchor.passer.first_name
