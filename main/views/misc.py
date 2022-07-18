@@ -14,6 +14,7 @@ import io
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
 from itertools import chain
+import main.views.errors as errors
 
 class friendsView(APIView):
     def get(self, request):
@@ -78,15 +79,15 @@ class SkillsView(APIView):
         if pattern is None:
             skills = Skill.objects.all()[:30]
         else:
-            skills1 = Skill.objects.filter(name__istartswith=pattern)[:20]
-            skills2 = Skill.objects.filter(Q(name__icontains=pattern) & ~Q(name__startswith=pattern))[:20]
+            skills1 = Skill.objects.filter(name__istartswith=pattern).order_by('name')[:20]
+            skills2 = Skill.objects.filter(Q(name__icontains=pattern) & ~Q(name__startswith=pattern)).order_by('name')[:20]
             skills = chain(skills1, skills2)
         serializer = SkillSerializer(skills,many=True)
         return Response(serializer.data)
 
     def post(self,request):
         if not(request.user.is_authenticated):
-            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+            return Response(errors.UNAUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)
         serializer = SkillSerializer(data=self.request.data,context={ 'request': self.request })
         atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
         try:

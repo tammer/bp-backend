@@ -10,6 +10,9 @@ class Command(BaseCommand):
     help = 'Load some data into a clean DB'
 
     def handle(self, *args, **options):
+        return self.handle_()
+
+    def handle_(self, lite=False):
         Category.objects.all().delete()
         Attribute.objects.all().delete()
         Skill.objects.all().delete()
@@ -27,16 +30,17 @@ class Command(BaseCommand):
                     c = Category(name=line.strip())
                     c.save()
                 else:
-                    print(f"{category},{line.strip()}")
+                    # print(f"{category},{line.strip()}")
                     Attribute(category=c, name=line.strip()).save()
 
         #
         # Tech Skills
         #
         list_url = "https://raw.githubusercontent.com/tammer/technology-list/main/list.txt"
-        for i in requests.get(list_url).text.split("\n"):
+        limit = 15 if lite else 1e6
+        for i in requests.get(list_url).text.split("\n")[0:limit]:
             if len(i) > 0:
-                print(i)
+                # print(i)
                 Skill(name=i).save()
 
         #
