@@ -65,10 +65,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def get(self, request, format=None):
-        try:
-            request.user.auth_token.delete()
-        except (AttributeError, ObjectDoesNotExist):
-            pass
+        request.user.auth_token.delete()
         logout(request)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 

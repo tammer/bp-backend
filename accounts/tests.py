@@ -1,14 +1,18 @@
 from django.test import TestCase
 from django.test import Client
 from main.management.commands.setup import Command
-from main.models import Skill
+from accounts.models import BPUser
+from main.models import Skill,Profile
 import json
 import main.views.errors as errors
 
 
 
-def jget(c,path):
-    r = c.get(path)
+def jget(c,path,token=None):
+    if token is None:
+        r = c.get(path)
+    else:
+        r = c.get(path,HTTP_AUTHORIZATION=f'Token {token}')
     return (r,json.loads(r.content))
 
 def jpost(c,path,data,token=None):
@@ -28,16 +32,32 @@ class MyTestCase(TestCase):
         Command().handle_(True)
         return super().setUp()
 
-class LoginView_(MyTestCase):
+class LoginAndLogOutView_(MyTestCase):
     def test_post(self):
         c = Client()
+        # Bad logins
         (r,j) = jpost(c,'/api-token-auth/',{"username":"najwa@quandl.com","password":"wrongpw"})
         assert(r.status_code==400)
         (r,j) = jpost(c,'/api-token-auth/',{"username":"najwa@quandl.com"})
         assert(r.status_code==400)
+        # Good credentials:
         (r,j) = jpost(c,'/api-token-auth/',{"username":"najwa@quandl.com","password":"123"})
         assert(r.status_code==200)
         assert('token' in j.keys())
+        # Check token works.
+        Profile(owner=BPUser.objects.get(email='najwa@quandl.com'), spec="filler").save()
+        (r1,j1) = jget(c,"/profile/",token=j['token'])
+        assert(r1.status_code==200)
+        assert(j1['spec'] == 'filler')
+        # Now log out
+        r1= c.get('/logout/',HTTP_AUTHORIZATION=f'Token {j["token"]}')
+        assert(r1.status_code==204)
+        # auth call should now fail:
+        (r1,j1) = jget(c,"/profile/",token=j['token'])
+        assert(r1.status_code==401) 
+        # and logout again
+        r1 = c.get('/logout/',HTTP_AUTHORIZATION=f'Token {j["token"]}')
+        assert(r1.status_code==401)
 
 class SkillsView_(MyTestCase):    
     def test_post(self):
