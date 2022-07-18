@@ -106,7 +106,7 @@ class Attributes(APIView):
             serializer = AttributeSerializer(attributes,many=True)
             return Response(serializer.data)
         except:
-            return Response('bad category name perhaps?',status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'bad request. bad category name perhaps? field is case senstive.'},status=status.HTTP_400_BAD_REQUEST)
 
 class CredibilityView(APIView):
 

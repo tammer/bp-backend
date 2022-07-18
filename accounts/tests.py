@@ -32,6 +32,18 @@ class MyTestCase(TestCase):
         Command().handle_(True)
         return super().setUp()
 
+class AttributesView_(MyTestCase):
+    def test(self):
+        c = Client()
+        (r,j) = jget(c,"/attributes/Industry/")
+        assert(r.status_code==200)
+        assert(type(j) == type([]))
+        assert(type(j[0]['id']==type(1)))
+        assert(type(j[1]['name']==type("string")))
+
+        (r,j) = jget(c,"/attributes/Blah/")
+        assert(r.status_code==400)
+
 class CreateNewUserView(MyTestCase):
     def test(self):
         c = Client()
