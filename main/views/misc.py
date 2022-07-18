@@ -39,17 +39,18 @@ class friendsView(APIView):
                 'id':i.email})
         return Response(friends,status=status.HTTP_200_OK)
 
-class AccountView(APIView):
-    permission_classes = (permissions.AllowAny,)
+# Not used as far as I can tell July 18, 2022
+# class AccountView(APIView):
+#     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, format=None):
-        serializer = BPUserSerializer(data=self.request.data,
-            context={ 'request': self.request })
-        serializer.is_valid(raise_exception=True)
-        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-        u = BPUser.objects.create_user(username="U"+atts['email'],password=atts['password'],email=atts['email'])
-        Profile(owner=u,spec="{}").save()
-        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
+#     def post(self, request, format=None):
+#         serializer = BPUserSerializer(data=self.request.data,
+#             context={ 'request': self.request })
+#         serializer.is_valid(raise_exception=True)
+#         atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+#         u = BPUser.objects.create_user(username="U"+atts['email'],password=atts['password'],email=atts['email'])
+#         Profile(owner=u,spec="{}").save()
+#         return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     # This view should be accessible also for unauthenticated users.

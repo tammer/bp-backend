@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.test import Client
 from main.management.commands.setup import Command
-from accounts.models import BPUser
-from main.models import Skill,Profile
+from accounts.models import BPUser,Invite
+from main.models import Skill,Profile,Anchor
 import json
 import main.views.errors as errors
 
@@ -31,6 +31,34 @@ class MyTestCase(TestCase):
     def setUp(self):
         Command().handle_(True)
         return super().setUp()
+
+class CreateNewUserView(MyTestCase):
+    def test(self):
+        c = Client()
+        data = {"email":"bob@tammer.com","password":"213","code":"bad_code"}
+        # incomple info:
+        (r,j) = jpost(c,"/signup/",data)
+        assert(r.status_code==400) 
+        data['first_name'] = "Bob"
+        data['last_name'] = "Smith"
+        (r,j) = jpost(c,"/signup/",data)
+        assert(r.status_code==400)
+        assert(j['error_code'] == 1)
+        assert('message' in j.keys())
+        # now a valid one
+        i = Invite(email="a@b.com",code="123123",created_by=BPUser.objects.get(email='najwa@quandl.com'))
+        i.save()
+        a = Anchor(passer=BPUser.objects.get(email='najwa@quandl.com'),receiver_invite=i,skill=Skill.objects.all().first(),level=99)
+        assert(a.receiver_invite is not None)
+        a.save()
+        data['code'] = "123123"
+        (r,j) = jpost(c,"/signup/",data)
+        assert(r.status_code==201)
+        assert('token' in j.keys())
+        assert(BPUser.objects.get(email='bob@tammer.com').first_name == 'Bob')
+        a = Anchor.objects.all().first()
+        assert(a.receiver_invite is None)
+        assert(a.receiver == BPUser.objects.get(email='bob@tammer.com'))
 
 class LoginAndLogOutView_(MyTestCase):
     def test_post(self):

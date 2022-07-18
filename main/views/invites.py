@@ -36,7 +36,7 @@ class SignupView(APIView):
             invite = Invite.objects.get(code=atts['code'])
             assert(invite.accepted_by is None)
         except:
-            return Response("Not a valid invite code (or it was used before)",status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error_code":1, "message": "Not a valid invite code (or it was used alreay)"},status=status.HTTP_400_BAD_REQUEST)
         del atts['code']
         atts['username'] = "U" + atts['email']
         u = BPUser.objects.create_user(**atts)
