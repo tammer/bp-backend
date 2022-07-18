@@ -1,39 +1,43 @@
-"""bp_backend URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 from main import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('invites/', views.InvitesView.as_view()),
+    #
+    # SIGN UP AND LOGIN
+    #
     path('signup/', views.SignupView.as_view()),
-        # POST only
-    path('attributes/<slug:category_name>/', views.Attributes.as_view()),
-    path('skills/', views.SkillsView.as_view()),
-        # GET or POST to create a new one
-    path('skills/<str:pattern>', views.SkillsView.as_view()),
-    path('profile/', views.MyProfile.as_view()),
-    path('login/', views.LoginView.as_view()),
-    path('logout/', views.LogoutView.as_view()),
-        # for session ids for web access. not for api! only for testing
-    
+        # POST only. Creates a new user.  payload must include invite code
+
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
-        # actually used by client
+        # UNAUTHENTICATED POST; returns you a token
+
+    path('logout/', views.LogoutView.as_view()),
+        # AUTHENTICATED GET; kills the active token
+
+    #
+    # SKILLS AND ATTRIBUTES
+    #
+    path('attributes/<slug:category_name>/', views.Attributes.as_view()),
+        # UNAUTHENTICATED GET. Returns all atts for a given category
+    
+    path('skills/', views.SkillsView.as_view()),
+        # UNAUTHENTICATED GET returns 20 skills
+        # AUTHENTICATED POST to create a new skill; used when someone types a skill we've not heard of
+    
+    path('skills/<str:pattern>', views.SkillsView.as_view()),
+        # UNAUTHENTICATED GET only; returns at most 20 names that match patterns case insensitive.    
+
+        
+
+    path('invites/', views.InvitesView.as_view()),
+
+    
+    
+    
+
+    path('profile/', views.MyProfile.as_view()),
 
     # path('accounts/',views.AccountView.as_view()), Why is this here?
 
@@ -66,7 +70,18 @@ urlpatterns = [
     path('anchor/<int:id>/<slug:action>',views.AnchorView.as_view()),
         # PUT to "accept", "decline" or "cancel"
     
-    path('friends/',views.friendsView.as_view())
+    path('friends/',views.friendsView.as_view()),
         # authenticated GET
+
+        #
+    # Admin and Debugging
+    #
+    path('admin/', admin.site.urls),
+
+    path('login/', views.LoginView.as_view()),
+        # UNAUTHENTICATED PUT only
+        # !!! used only for testing
+
+
 
     ]
