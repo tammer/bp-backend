@@ -1,5 +1,5 @@
 I have written some check if use is authenticated.  but that seems to occur before the function even gets called.
-clean that up.
+clean that up.  I swear i used to get that code to run.  i.e. in Assessments for example.  somewhere I ahve seen the message "you dont exist"
 
 it does the jiggly thing because it flashes the word loading!
 

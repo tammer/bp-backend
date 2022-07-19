@@ -13,11 +13,14 @@ class AssessmentsView(APIView):
     def get(self,request):
         if not(request.user.is_authenticated):
             return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+        # required skills are skills cited in the user's profile OR a skill that has been endorsed
+        # required basically means you can't delete it
         try:
             requiredSkills = Profile.objects.get(owner=request.user).skills()
         except:
             requiredSkills = []
         assessments = Assessment.objects.filter(owner=request.user).order_by("id")
+        # mark certain assessments as "required".  also set min and max based on if they are endorsed
         for assessment in assessments:
             m = Endorsement.objects.highest(owner=request.user, skill=assessment.skill)
             if m is not None:
@@ -52,8 +55,7 @@ class AssessmentsView(APIView):
             a.save()
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
-
-        return JsonResponse({"status":"created"}, status=status.HTTP_201_CREATED)
+        return Response(None, status=status.HTTP_201_CREATED)
 
 class AssessmentView(APIView):
     def get_(self,id):

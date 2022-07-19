@@ -30,10 +30,18 @@ urlpatterns = [
         # UNAUTHENTICATED GET only; returns at most 20 names that match patterns case insensitive.
     
     #
-    # User Things
+    # Profile and Assessments
     #
     path('profile/', views.MyProfile.as_view()),
         # AUTHENTICATED GET AND PUT.  read/write a JSON blob
+
+    path('assessments/',views.AssessmentsView.as_view()),
+        # AUTHENTICATED GET to get them all
+        # AUTHENTICATED POST to add a new one
+
+    path('assessment/<int:id>',views.AssessmentView.as_view()),
+        # AUTHENTICATED GET, PUT, DELETE. standard CRUD
+
 
     #
     # The Rest
@@ -47,12 +55,6 @@ urlpatterns = [
     
 
     # path('accounts/',views.AccountView.as_view()), Why is this here?
-
-    path('assessments/',views.AssessmentsView.as_view()),
-        # GET OR POST
-
-    path('assessment/<int:id>',views.AssessmentView.as_view()),
-        # GET, PUT, DELETE
 
     path('endorsements/',views.EndorsementsView.as_view()),
         # GET only

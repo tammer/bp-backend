@@ -97,6 +97,7 @@ class Endorsement(models.Model):
  
     class Meta:
         unique_together = ('owner','counterparty', 'skill',)
+        # !!! add owner cannot equal counterpary
 
     def __str__(self):
         return self.skill.name
