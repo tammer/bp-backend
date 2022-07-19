@@ -27,17 +27,24 @@ urlpatterns = [
         # AUTHENTICATED POST to create a new skill; used when someone types a skill we've not heard of
     
     path('skills/<str:pattern>', views.SkillsView.as_view()),
-        # UNAUTHENTICATED GET only; returns at most 20 names that match patterns case insensitive.    
+        # UNAUTHENTICATED GET only; returns at most 20 names that match patterns case insensitive.
+    
+    #
+    # User Things
+    #
+    path('profile/', views.MyProfile.as_view()),
+        # AUTHENTICATED GET AND PUT.  read/write a JSON blob
 
-        
-
+    #
+    # The Rest
+    # 
     path('invites/', views.InvitesView.as_view()),
 
     
     
     
 
-    path('profile/', views.MyProfile.as_view()),
+    
 
     # path('accounts/',views.AccountView.as_view()), Why is this here?
 

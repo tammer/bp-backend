@@ -1,3 +1,6 @@
+I have written some check if use is authenticated.  but that seems to occur before the function even gets called.
+clean that up.
+
 it does the jiggly thing because it flashes the word loading!
 
 Now-ish

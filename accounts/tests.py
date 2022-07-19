@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test import Client
 from main.management.commands.setup import Command
 from accounts.models import BPUser,Invite
-from main.models import Skill,Profile,Anchor
+from main.models import Skill,Profile,Anchor,Assessment
 import json
 import main.views.errors as errors
 
@@ -10,9 +10,9 @@ import main.views.errors as errors
 
 def jget(c,path,token=None):
     if token is None:
-        r = c.get(path)
+        r = c.get(path,HTTP_ACCEPT='application/json')
     else:
-        r = c.get(path,HTTP_AUTHORIZATION=f'Token {token}')
+        r = c.get(path,HTTP_ACCEPT='application/json',HTTP_AUTHORIZATION=f'Token {token}')
     return (r,json.loads(r.content))
 
 def jpost(c,path,data,token=None):
@@ -21,6 +21,16 @@ def jpost(c,path,data,token=None):
     else:
         r = c.post(path,data,HTTP_AUTHORIZATION=f'Token {token}')
     return (r,json.loads(r.content))
+
+def jput(c,path,data,token=None):
+    if token is None:
+        r = c.put(path,data)
+    else:
+        r = c.put(path,data, content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+    if r.content:
+        return (r,json.loads(r.content))
+    else:
+        return (r,None)
 
 def get_token(c):
     (r,j) = jpost(c,'/api-token-auth/',{"username":"najwa@quandl.com","password":"123"})
@@ -31,6 +41,54 @@ class MyTestCase(TestCase):
     def setUp(self):
         Command().handle_(True)
         return super().setUp()
+
+class ProfileView_(MyTestCase):
+    def test(self):
+        c = Client()
+        # unauthorized
+        data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':[1]}"} )
+        (r,j) = jput(c,'/profile/',data)
+        assert(r.status_code==401)
+        
+        # authorized, sending junk
+        token = get_token(c)
+        data = "invalid json"
+        (r,j) = jput(c,'/profile/',data,token=token)
+        assert(r.status_code==400)
+        
+        # authorized, sending slightly garbled
+        data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':99999}"} )
+        (r,j) = jput(c,'/profile/',data,token=token)
+        assert(r.status_code==400)
+
+        # authorized, sending good data
+        data = json.dumps( {"spec":'{"something":"something else"}'} )
+        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+        assert(r.status_code==200)
+
+        # now let's get it
+        (r,j) = jget(c,'/profile/',token=token)
+        assert(r.status_code==200)
+        assert(json.loads(r.content) == json.loads(data))
+
+        # Confirm skills become assessments
+        skill = Skill.objects.all().last()
+        spec = {'TechStack': {'attributes':[{'id':skill.id}]}}
+        spec_string = json.dumps(spec)
+        data = json.dumps( {"spec":spec_string} )
+        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+        assert(r.status_code==200)
+        assert(Profile.objects.all().first().skills()[0] == skill)
+        a = Assessment.objects.all().first()
+        assert(a.skill == skill)
+        assert(a.level == 50)
+
+        # Confirm no overwrite if it is there already
+        a.level = 75
+        a.save()
+        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+        a = Assessment.objects.all().first()
+        assert(a.level == 75)
 
 class AttributesView_(MyTestCase):
     def test(self):

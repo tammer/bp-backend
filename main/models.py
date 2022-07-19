@@ -106,10 +106,24 @@ class Profile(models.Model):
     spec = models.TextField()
 
     def skills(self):
+        my_spec = json.loads(self.spec)
+        if type(my_spec) is not dict or 'TechStack' not in my_spec.keys():
+            # spec should be a valid dict with a TechStack entry, but if not, don't fail.
+            return []
         rv = []
-        for i in json.loads(self.spec)['TechStack']['attributes']:
+        for i in my_spec['TechStack']['attributes']:
             rv.append(Skill.objects.get(id=i['id']))
         return rv
+    
+    def is_valid(self):
+        try:
+            my_spec = json.loads(self.spec)
+        except:
+            return False
+        if type(my_spec) is not dict:
+            return False
+        return True
+
 
 
 class AssessmentManager(models.Manager):
