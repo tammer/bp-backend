@@ -68,6 +68,7 @@ class AssessmentView(APIView):
         try:
             if not(request.user.is_authenticated):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
+            ### make sure I own this assessment!!!
             if id is None:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             assessment = self.get_(id)
@@ -82,8 +83,9 @@ class AssessmentView(APIView):
         if not(request.user.is_authenticated):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         try:
-            item = self.get_(id)
-            item.delete()
+            ### make sure I own this assessment!!!
+            assessment = self.get_(id)
+            assessment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
@@ -94,15 +96,15 @@ class AssessmentView(APIView):
         try:
             serializer = AssessmentSerializer(data=self.request.data,context={ 'request': self.request })
             atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
-            item = self.get_(id)
+            assessment = self.get_(id)
+            if assessment.owner != request.user:
+                return Response({"message":"Unauthorized"},status=status.HTTP_401_UNAUTHORIZED)
             if "skill" in atts:
-                item.skill = Skill.objects.get(name=atts['skill']['name'])
+                if assessment.skill != Skill(**atts['skill']):
+                    return Response({"message":"You cannot change the skill; delete and create a new assessment"},status=status.HTTP_400_BAD_REQUEST)
             if "level" in atts:
-                item.level = atts['level']
-            # benchmark = highestAnchorLevel(request.user, item.skill)
-            # if item.level < benchmark:
-            #     item.level = benchmark
-            item.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+                assessment.level = atts['level']
+            assessment.save()
+            return Response(status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
