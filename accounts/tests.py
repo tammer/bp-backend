@@ -79,6 +79,25 @@ class MyTestCase(TestCase):
         Command().handle_(True)
         return super().setUp()
 
+
+class InviteTest(MyTestCase):
+    def test(self):
+        c = Client()
+        token = get_token(c)
+        # test unauth
+        data = {"email":"tammer"}
+        (r,j) = jpost(c,"/invites/",data,token="ad")
+        assert(r.status_code==401)
+        # test ill formatted email
+        data = {"email":"tammer"}
+        (r,j) = jpost(c,"/invites/",data,token=token)
+        assert(r.status_code==400) 
+        # test well formatted
+        data = {"email":"tammer@quandl.com"}
+        (r,j) = jpost(c,"/invites/",data,token=token)
+        assert(r.status_code==201) 
+        
+
 class AssessmentTest(MyTestCase):
     def test_post(self):
         # unauth

@@ -44,17 +44,15 @@ urlpatterns = [
 
 
     #
-    # The Rest
+    # Invites and Anchors
     # 
     path('invites/', views.InvitesView.as_view()),
 
     
     
-    
+    # the rest    
 
-    
 
-    # path('accounts/',views.AccountView.as_view()), Why is this here?
 
     path('endorsements/',views.EndorsementsView.as_view()),
         # GET only
