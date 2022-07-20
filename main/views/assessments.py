@@ -68,12 +68,11 @@ class AssessmentView(APIView):
         try:
             if not(request.user.is_authenticated):
                 return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
-            ### make sure I own this assessment!!!
-            if id is None:
-                return Response(status=status.HTTP_204_NO_CONTENT)
             assessment = self.get_(id)
             if assessment is None:
-                return Response('assessment no existo',status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message":'assessment no existo'},status=status.HTTP_400_BAD_REQUEST)
+            if assessment.owner != request.user:
+                return Response({"message":"Unauthorized"},status=status.HTTP_401_UNAUTHORIZED)
             serializer = AssessmentSerializer(assessment,many=False)
             return Response(serializer.data)
         except Exception as e:
@@ -83,10 +82,11 @@ class AssessmentView(APIView):
         if not(request.user.is_authenticated):
            return Response('you dont exist',status=status.HTTP_400_BAD_REQUEST)
         try:
-            ### make sure I own this assessment!!!
             assessment = self.get_(id)
+            if assessment.owner != request.user:
+                return Response({"message":"Unauthorized"},status=status.HTTP_401_UNAUTHORIZED)
             assessment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e),status=status.HTTP_400_BAD_REQUEST)
 
