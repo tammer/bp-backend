@@ -5,3 +5,4 @@ from .anchors import *
 from .profile import *
 from .invites import *
 from .endorsements import *
+from .opportunities import *

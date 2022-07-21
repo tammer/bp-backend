@@ -2,6 +2,67 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from accounts.models import BPUser, Invite
 import json
+from django.db.models.functions import Now
+
+class Job(models.Model):
+    owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
+    profile = models.JSONField()
+    is_active = models.BooleanField(default=True)
+    def org_name(self):
+        try:
+            return self.profile['org_name']
+        except:
+            return None
+    def description_url(self):
+        try:
+            return self.profile['description_url']
+        except:
+            return None
+    def __str__(self):
+        return self.org_name()
+            
+
+class Opportunity(models.Model):
+    PENDING = 'pending'
+    DECLINED = 'declined'
+    ACCEPTED = 'accepted'
+    CLOSED = 'closed'
+    owner =  models.ForeignKey(BPUser, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    accepted_at = models.DateTimeField(null=True) 
+    declined_at = models.DateTimeField(null=True) 
+    closed_at = models.DateTimeField(null=True)
+    # candidate_report = models.JSONField()
+    # recruiter_report = models.JSONField()
+    def accept(self):
+        assert(self.accepted_at is None)
+        assert(self.declined_at is None)
+        assert(self.closed_at is None)
+        self.accepted_at = Now()
+    def decline(self):
+        assert(self.accepted_at is None)
+        assert(self.declined_at is None)
+        assert(self.closed_at is None)
+        self.declined_at = Now()
+        self.closed_at = Now()
+    def close(self):
+        assert(self.accepted_at is not None)
+        assert(self.declined_at is None)
+        assert(self.closed_at is None)
+        self.closed_at = Now()
+    def status(self):
+        if self.closed_at is not None:
+            return self.CLOSED
+        if self.accepted_at is not None:
+            return self.ACCEPTED
+        else:
+            return self.PENDING
+    def is_declined(self):
+        return True if self.declined_at is not None else False
+    def __str__(self):
+        return self.id
 
 class SkillManager(models.Manager):
     def smart_get(self,key):

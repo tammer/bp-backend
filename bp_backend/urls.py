@@ -48,6 +48,15 @@ urlpatterns = [
     # 
     path('invites/', views.InvitesView.as_view()),
 
+    #
+    # Opportunities
+    #
+    path('opportunities/',views.OpportunitiesView.as_view()),
+        # AUTHENTICATED GET
+
+    path('opportunity/<int:id>/<slug:action>',views.OpportunityView.as_view()),
+        # AUTHENTICATED PUT to accept, decline or close
+
     
     
     # the rest    

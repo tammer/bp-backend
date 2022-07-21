@@ -1,7 +1,17 @@
+immediate
+test code for anchor create (dont worry about the views yet since they will change)
+the rest of the experience.  recruiter and opportunity management
+can we add more structure to the job profile.  instead of blob
+    explore JSON as the data type field Postgres has this.
+    
+
+
 I have written some check if use is authenticated.  but that seems to occur before the function even gets called.
 clean that up.  I swear i used to get that code to run.  i.e. in Assessments for example.  somewhere I ahve seen the message "you dont exist"
 
 it does the jiggly thing because it flashes the word loading!
+
+re-factor company size to have min and max
 
 Now-ish
 

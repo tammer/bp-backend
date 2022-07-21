@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test import Client
 from main.management.commands.setup import Command
 from accounts.models import BPUser,Invite
-from main.models import Skill,Profile,Anchor,Assessment,Endorsement
+from main.models import Skill,Profile,Anchor,Assessment,Endorsement,Job,Opportunity
 import json
 import main.views.errors as errors
 
@@ -54,8 +54,8 @@ def jput(c,path,data,token=None):
     else:
         return (r,None)
 
-def get_token(c):
-    (r,j) = jpost(c,'/api-token-auth/',{"username":"najwa@quandl.com","password":"123"})
+def get_token(c,who='najwa'):
+    (r,j) = jpost(c,'/api-token-auth/',{"username":f"{who}@quandl.com","password":"123"})
     return j['token']
 
 def najwa():
@@ -79,6 +79,47 @@ class MyTestCase(TestCase):
         Command().handle_(True)
         return super().setUp()
 
+
+class OpportunityTest(MyTestCase):
+    def test(self):
+        # gets
+        p1 = {"org_name":"ACME Corp", "description_url":"https://www.thestar.com"}
+        p2 = {"org_name":"Vandelay Industries", "description_url":"https://www.thestar.com"}
+        j1 = Job(owner=ross(), profile=p1)
+        j1.save()
+        j2 = Job(owner=ross(), profile=p2)
+        j2.save()
+        o1 = Opportunity(owner=najwa(),job=j1)
+        o2 = Opportunity(owner=najwa(),job=j2)
+        o1.save()
+        o2.save()
+        c = Client()
+        (r,j) = jget(c,"/opportunities/",token="bad")
+        assert(r.status_code==401)
+        token = get_token(c)
+        (r,j) = jget(c,"/opportunities/",token=token)
+        assert(r.status_code==200)
+
+        # puts
+        # try to put as Ross, should 401
+        (r,j) = jput(c,'/opportunity/1/decline',None,token=get_token(c,"ross"))
+        assert(r.status_code==401)
+        # put as Najwa
+        (r,j) = jput(c,'/opportunity/1/close',None,token=token)
+        assert(r.status_code==400)
+        (r,j) = jput(c,'/opportunity/1/decline',None,token=token)
+        assert(r.status_code==200)
+        assert(Opportunity.objects.get(id=1).status() == Opportunity.CLOSED)
+        assert(Opportunity.objects.get(id=1).is_declined() == True)
+        (r,j) = jput(c,'/opportunity/2/accept',None,token=token)
+        assert(r.status_code==200)
+        assert(Opportunity.objects.get(id=2).status() == Opportunity.ACCEPTED)
+        (r,j) = jput(c,'/opportunity/2/close',None,token=token)
+        assert(r.status_code==200)
+        assert(Opportunity.objects.get(id=2).status() == Opportunity.CLOSED)
+        assert(Opportunity.objects.get(id=2).is_declined() == False)
+        (r,j) = jput(c,'/opportunity/2/foo',None,token=token)
+        assert(r.status_code == 400)
 
 class InviteTest(MyTestCase):
     def test(self):
