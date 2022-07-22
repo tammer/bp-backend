@@ -37,7 +37,7 @@ class Command(BaseCommand):
         # Tech Skills
         #
         list_url = "https://raw.githubusercontent.com/tammer/technology-list/main/list.txt"
-        limit = 15 if lite else 1e6
+        limit = 15 if lite else 10000
         for i in requests.get(list_url).text.split("\n")[0:limit]:
             if len(i) > 0:
                 # print(i)

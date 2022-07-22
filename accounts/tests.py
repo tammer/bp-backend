@@ -69,7 +69,7 @@ def najwa_profile():
     skill = Skill.objects.all().last()
     z = [{"id":skill.id}]
     y['TechStack']['attributes'] = z
-    x = Profile(owner=najwa(), spec=json.dumps(y))
+    x = Profile(owner=najwa(), spec=y)
     x.save()
     return x
 
@@ -254,43 +254,45 @@ class AssessmentTest(MyTestCase):
         # legit
         (r,j) = jdelete(c,f"/assessment/{a2.id}",token=token)
         assert(r.status_code == 200)
-        assert(Assessment.objects.filter(id=a2.id).first() is None)        
+        assert(Assessment.objects.filter(id=a2.id).first() is None)
 
 class ProfileView_(MyTestCase):
     def test(self):
         c = Client()
-        # unauthorized
+        # # unauthorized
         data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':[1]}"} )
         (r,j) = jput(c,'/profile/',data)
         assert(r.status_code==401)
         
-        # authorized, sending junk
+        # # authorized, sending junk
         token = get_token(c)
         data = "invalid json"
         (r,j) = jput(c,'/profile/',data,token=token)
         assert(r.status_code==400)
         
         # authorized, sending slightly garbled
-        data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':99999}"} )
-        (r,j) = jput(c,'/profile/',data,token=token)
+        data = {"crap":"something else"}
+        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==400)
-
-        # authorized, sending good data
-        data = json.dumps( {"spec":'{"something":"something else"}'} )
+        # now let's send a good profile
+        data = {"Role":{"attributes":[{"id":1}]}}
         r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
+        assert(Profile.objects.all().first().spec == data)
 
         # now let's get it
+        #first unauthorized:
+        (r,j) = jget(c,'/profile/',token="aaa")
+        assert(r.status_code==401)
+        # now authorized
         (r,j) = jget(c,'/profile/',token=token)
         assert(r.status_code==200)
-        assert(json.loads(r.content) == json.loads(data))
+        assert(j == {'Role': {'attributes': [{'id': 1, 'name': 'on-site'}]}})
 
         # Confirm skills become assessments
         skill = Skill.objects.all().last()
         spec = {'TechStack': {'attributes':[{'id':skill.id}]}}
-        spec_string = json.dumps(spec)
-        data = json.dumps( {"spec":spec_string} )
-        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+        r = c.put('/profile/',spec,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
         assert(Profile.objects.all().first().skills()[0] == skill)
         a = Assessment.objects.all().first()
@@ -303,6 +305,18 @@ class ProfileView_(MyTestCase):
         r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         a = Assessment.objects.all().first()
         assert(a.level == 75)
+
+        # test skills() function
+        Profile.objects.all().delete()
+        p = najwa_profile()
+        assert(p.skills()[0]==Skill.objects.all().last())
+
+        # Issue
+        Profile.objects.all().delete()
+        y = {"Role":{"active":True,"attributes":[{"id":435,"name":"Full Stack Developer"}]},"Model":{"active":True,"attributes":[]},"Language":{"active":True,"attributes":[]},"Tenure":{"active":True,"attributes":[]},"Location":{"active":True,"attributes":[]},"TechStack":{"active":True,"attributes":[{"id":1,"name":".NET"}]},"TechAntiStack":{"active":False,"attributes":[]},"OrgSize":{"active":True,"attributes":[]},"OrgType":{"active":True,"attributes":[]},"Industry":{"active":True,"attributes":[]},"Experential":{"active":True,"attributes":[]},"Salary":{"active":True,"attributes":[{"amount":"100,000","ccy":"USD"}]}}
+        r = c.put('/profile/',y,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
+        assert(r.status_code==200)
+
 
 class AttributesView_(MyTestCase):
     def test(self):
@@ -357,10 +371,10 @@ class LoginAndLogOutView_(MyTestCase):
         assert(r.status_code==200)
         assert('token' in j.keys())
         # Check token works.
-        Profile(owner=BPUser.objects.get(email='najwa@quandl.com'), spec="filler").save()
+        n = najwa_profile() 
         (r1,j1) = jget(c,"/profile/",token=j['token'])
         assert(r1.status_code==200)
-        assert(j1['spec'] == 'filler')
+        assert(j1 == n.get())
         # Now log out
         r1= c.get('/logout/',HTTP_AUTHORIZATION=f'Token {j["token"]}')
         assert(r1.status_code==204)

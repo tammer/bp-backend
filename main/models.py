@@ -164,27 +164,65 @@ class Endorsement(models.Model):
         return self.skill.name
 
 class Profile(models.Model):
+    ORGANIZATION = 'Organization'
+    ROLE = 'Role'
+    MODEL = 'Model'
+    LANGUAGE = 'Language'
+    TENURE = 'Tenure'
+    LOCATION = 'Location'
+    TECHSTACK = 'TechStack'
+    TECHANTISTACK = 'TechAntiStack'
+    ORGSIZE = 'OrgSize'
+    ORGTYPE = 'OrgType' # breaking change (front end)
+    INDUSTRY = 'Industry'
+    EXPERENTIAL = 'Experential' # !!! breaking change (front end)
+    SALARY = 'Salary'
+
+    valid_keys = {  ORGANIZATION:{"values":None},
+                    ROLE: {"values":Attribute},
+                    MODEL: {"values":Attribute},
+                    LANGUAGE: {"values":Attribute},
+                    TENURE: {"values":Attribute},
+                    LANGUAGE: {'values':Attribute},
+                    TENURE: {'values':Attribute},
+                    LOCATION: {'values':None},
+                    TECHSTACK: {'values':Skill},
+                    TECHANTISTACK: {'values':Skill},
+                    ORGSIZE: {'values':None},
+                    ORGTYPE: {'values':Attribute},
+                    INDUSTRY: {'values':Attribute},
+                    EXPERENTIAL: {'values':Attribute},
+                    SALARY: {'values':None},}
     owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)
-    spec = models.TextField()
+    spec = models.JSONField(null=True)
+
+    def update(self,profile):
+        for key in profile.keys():
+            if key not in self.valid_keys.keys():
+                raise AttributeError(f"{key} is not a valid key")
+        self.spec = profile
+        self.save()
+
+    def get(self,refresh_names=True):
+        if not refresh_names:
+            return self.spec
+        rv = self.spec
+        for key in rv.keys():
+            if self.valid_keys[key]['values'] is not None:
+                for item in rv[key]['attributes']:
+                    item['name'] = self.valid_keys[key]['values'].objects.get(id=item['id']).name
+        return rv
 
     def skills(self):
-        my_spec = json.loads(self.spec)
-        if type(my_spec) is not dict or 'TechStack' not in my_spec.keys():
+        my_spec = self.spec
+        if my_spec is None or self.TECHSTACK not in my_spec.keys():
             # spec should be a valid dict with a TechStack entry, but if not, don't fail.
             return []
         rv = []
-        for i in my_spec['TechStack']['attributes']:
+        for i in my_spec[self.TECHSTACK]['attributes']:
             rv.append(Skill.objects.get(id=i['id']))
         return rv
-    
-    def is_valid(self):
-        try:
-            my_spec = json.loads(self.spec)
-        except:
-            return False
-        if type(my_spec) is not dict:
-            return False
-        return True
+
 
 
 

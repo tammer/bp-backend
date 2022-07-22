@@ -53,11 +53,6 @@ class AttributeSerializer(serializers.ModelSerializer):
         model = Attribute
         fields = ('id', 'name',)
 
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ('spec',)
-
 class LoginSerializer(serializers.Serializer):
 
     username = serializers.CharField(
