@@ -24,10 +24,10 @@ class OpportunitiesView(APIView):
 
 class OpportunityView(APIView):
     def put(self, request, id, action):
-        opp = Opportunity.objects.get(id=id)
-        if(opp.owner != request.user):
-            return Response(None,status=status.HTTP_401_UNAUTHORIZED)
         try:
+            opp = Opportunity.objects.get(id=id)
+            if(opp.owner != request.user):
+                return Response(None,status=status.HTTP_401_UNAUTHORIZED)
             if action == 'decline':
                 opp.decline()
             elif action == 'accept':
@@ -36,9 +36,9 @@ class OpportunityView(APIView):
                 opp.close()
             else:
                 return Response({"message":f"unknown action {action}"},status=status.HTTP_400_BAD_REQUEST)
+            opp.save()
+            return Response(None,status=status.HTTP_200_OK)
         except:
             return Response(None,status=status.HTTP_400_BAD_REQUEST)
-        opp.save()
-        return Response(None,status=status.HTTP_200_OK)
 
         
