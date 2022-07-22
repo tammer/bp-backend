@@ -317,6 +317,10 @@ class ProfileView_(MyTestCase):
         r = c.put('/profile/',y,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
 
+        # skill renamed
+        Profile.objects.all().delete()
+        p = najwa_profile()
+        assert(p.get()[Profile.TECHSTACK]['attributes'][0]['name'] == 'Aerospike')
 
 class AttributesView_(MyTestCase):
     def test(self):
