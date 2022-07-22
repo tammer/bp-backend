@@ -173,9 +173,9 @@ class Profile(models.Model):
     TECHSTACK = 'TechStack'
     TECHANTISTACK = 'TechAntiStack'
     ORGSIZE = 'OrgSize'
-    ORGTYPE = 'OrgType' # breaking change (front end)
+    ORGTYPE = 'OrgType'
     INDUSTRY = 'Industry'
-    EXPERENTIAL = 'Experential' # !!! breaking change (front end)
+    EXPERENTIAL = 'Experential'
     SALARY = 'Salary'
 
     valid_keys = {  ORGANIZATION:{"values":None},
