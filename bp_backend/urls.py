@@ -33,7 +33,7 @@ urlpatterns = [
     # Profile and Assessments
     #
     path('profile/', views.MyProfile.as_view()),
-        # AUTHENTICATED GET AND PUT.  read/write a JSON blob
+        # AUTHENTICATED GET AND PUT.
 
     path('assessments/',views.AssessmentsView.as_view()),
         # AUTHENTICATED GET to get them all
