@@ -175,7 +175,7 @@ class Profile(models.Model):
     ORGSIZE = 'OrgSize'
     ORGTYPE = 'OrgType'
     INDUSTRY = 'Industry'
-    EXPERENTIAL = 'Experential'
+    EXPERENTIAL = 'Experiential'
     SALARY = 'Salary'
 
     valid_keys = {  ORGANIZATION:{"values":None},

@@ -313,7 +313,7 @@ class ProfileView_(MyTestCase):
 
         # Issue
         Profile.objects.all().delete()
-        y = {"Role":{"active":True,"attributes":[{"id":435,"name":"Full Stack Developer"}]},"Model":{"active":True,"attributes":[]},"Language":{"active":True,"attributes":[]},"Tenure":{"active":True,"attributes":[]},"Location":{"active":True,"attributes":[]},"TechStack":{"active":True,"attributes":[{"id":1,"name":".NET"}]},"TechAntiStack":{"active":False,"attributes":[]},"OrgSize":{"active":True,"attributes":[]},"OrgType":{"active":True,"attributes":[]},"Industry":{"active":True,"attributes":[]},"Experential":{"active":True,"attributes":[]},"Salary":{"active":True,"attributes":[{"amount":"100,000","ccy":"USD"}]}}
+        y = {"Role":{"active":True,"attributes":[{"id":435,"name":"Full Stack Developer"}]},"Model":{"active":True,"attributes":[]},"Language":{"active":True,"attributes":[]},"Tenure":{"active":True,"attributes":[]},"Location":{"active":True,"attributes":[]},"TechStack":{"active":True,"attributes":[{"id":1,"name":".NET"}]},"TechAntiStack":{"active":False,"attributes":[]},"OrgSize":{"active":True,"attributes":[]},"OrgType":{"active":True,"attributes":[]},"Industry":{"active":True,"attributes":[]},"Experiential":{"active":True,"attributes":[]},"Salary":{"active":True,"attributes":[{"amount":"100,000","ccy":"USD"}]}}
         r = c.put('/profile/',y,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
 
