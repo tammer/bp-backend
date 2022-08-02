@@ -161,8 +161,8 @@ OrgSize
     > 5000 employees
     > 10,000 employees
 OrgType
-    publicly traded
-    private
+    publicly traded corporation
+    private company
     government
     not for profit
     charity
