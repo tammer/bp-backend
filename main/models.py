@@ -166,7 +166,7 @@ class Endorsement(models.Model):
 class Profile(models.Model):
     ORGANIZATION = 'Organization'
     ROLE = 'Role'
-    MODEL = 'Model'
+    WORKMODEL = 'WorkModel'
     LANGUAGE = 'Language'
     TENURE = 'Tenure'
     LOCATION = 'Location'
@@ -175,12 +175,12 @@ class Profile(models.Model):
     ORGSIZE = 'OrgSize'
     ORGTYPE = 'OrgType'
     INDUSTRY = 'Industry'
-    EXPERENTIAL = 'Experiential'
+    EXPERIENTIAL = 'Experiential'
     SALARY = 'Salary'
 
     valid_keys = {  ORGANIZATION:{"values":None},
                     ROLE: {"values":Attribute},
-                    MODEL: {"values":Attribute},
+                    WORKMODEL: {"values":Attribute},
                     LANGUAGE: {"values":Attribute},
                     TENURE: {"values":Attribute},
                     LANGUAGE: {'values':Attribute},
@@ -191,7 +191,7 @@ class Profile(models.Model):
                     ORGSIZE: {'values':None},
                     ORGTYPE: {'values':Attribute},
                     INDUSTRY: {'values':Attribute},
-                    EXPERENTIAL: {'values':Attribute},
+                    EXPERIENTIAL: {'values':Attribute},
                     SALARY: {'values':None},}
     owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)
     spec = models.JSONField(null=True)
