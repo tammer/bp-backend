@@ -63,14 +63,21 @@ def najwa():
 def ross():
     return BPUser.objects.get(email='ross@quandl.com')
 
-def najwa_profile():
+# The noass thing:  its for backwards compatability on some tests that were created before assessments
+# were automaticlaly created in profiles.
+def najwa_profile(noass=False):
+    p = Profile.objects.filter(owner=najwa())
+    if p.exists():
+        return p[0]
     y = {}
     y['TechStack'] = {}
     skill = Skill.objects.all().last()
-    z = [{"id":skill.id}]
+    z = [{"id":skill.id,"level":22}]
     y['TechStack']['attributes'] = z
     x = Profile(owner=najwa(), spec=y)
     x.save()
+    if not noass:
+        Assessment(owner=najwa(), skill=skill, level=22).save()
     return x
 
 
@@ -185,7 +192,7 @@ class AssessmentTest(MyTestCase):
         assert(j[0]['level']==77)
         assert(j[0]['required']==False)
 
-        x = najwa_profile() # forces skill to be required because it is in the profile
+        x = najwa_profile(noass=True) # forces skill to be required because it is in the profile
         skill1 = Skill.objects.all().last()
 
         Assessment(owner=najwa(),skill=skill1,level=66).save()
@@ -259,12 +266,12 @@ class AssessmentTest(MyTestCase):
 class ProfileView_(MyTestCase):
     def test(self):
         c = Client()
-        # # unauthorized
+        # unauthorized
         data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':[1]}"} )
         (r,j) = jput(c,'/profile/',data)
         assert(r.status_code==401)
         
-        # # authorized, sending junk
+        # authorized, sending junk
         token = get_token(c)
         data = "invalid json"
         (r,j) = jput(c,'/profile/',data,token=token)
@@ -275,7 +282,8 @@ class ProfileView_(MyTestCase):
         r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==400)
         # now let's send a good profile
-        data = {"Role":{"attributes":[{"id":1}]}}
+        skill = Skill.objects.all().last()
+        data = {"Role":{"attributes":[{"id":1}]},'TechStack': {'attributes':[{'id':skill.id, 'level':1}]}}
         r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
         assert(Profile.objects.all().first().spec == data)
@@ -287,39 +295,32 @@ class ProfileView_(MyTestCase):
         # now authorized
         (r,j) = jget(c,'/profile/',token=token)
         assert(r.status_code==200)
-        assert(j == {'Role': {'attributes': [{'id': 1, 'name': 'on-site'}]}})
+        assert(j == {'Role': {'attributes': [{'id': 1, 'name': 'on-site'}]}, 'TechStack': {'attributes': [{'id': 15, 'level': 1, 'name': 'Aerospike'}]}})
 
         # Confirm skills become assessments
         skill = Skill.objects.all().last()
-        spec = {'TechStack': {'attributes':[{'id':skill.id}]}}
+        spec = {'TechStack': {'attributes':[{'id':skill.id,'level':49}]}}
         r = c.put('/profile/',spec,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
         assert(Profile.objects.all().first().skills()[0] == skill)
         a = Assessment.objects.all().first()
         assert(a.skill == skill)
-        assert(a.level == 50)
-
-        # Confirm no overwrite if it is there already
-        a.level = 75
-        a.save()
-        r = c.put('/profile/',data,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
-        a = Assessment.objects.all().first()
-        assert(a.level == 75)
+        assert(a.level == 49)
 
         # test skills() function
         Profile.objects.all().delete()
-        p = najwa_profile()
+        p = najwa_profile(noass=True)
         assert(p.skills()[0]==Skill.objects.all().last())
 
         # Issue
         Profile.objects.all().delete()
-        y = {"Role":{"active":True,"attributes":[{"id":435,"name":"Full Stack Developer"}]},"Model":{"active":True,"attributes":[]},"Language":{"active":True,"attributes":[]},"Tenure":{"active":True,"attributes":[]},"Location":{"active":True,"attributes":[]},"TechStack":{"active":True,"attributes":[{"id":1,"name":".NET"}]},"TechAntiStack":{"active":False,"attributes":[]},"OrgSize":{"active":True,"attributes":[]},"OrgType":{"active":True,"attributes":[]},"Industry":{"active":True,"attributes":[]},"Experiential":{"active":True,"attributes":[]},"Salary":{"active":True,"attributes":[{"amount":"100,000","ccy":"USD"}]}}
+        y = {"Role":{"active":True,"attributes":[]},"WorkModel":{"active":True,"attributes":[]},"Language":{"active":True,"attributes":[]},"Tenure":{"active":True,"attributes":[]},"Location":{"active":True,"attributes":[]},"TechStack":{"active":True,"attributes":[{"id":1,"name":".NET",'level':99}]},"TechAntiStack":{"active":False,"attributes":[]},"OrgSize":{"active":True,"attributes":[]},"OrgType":{"active":True,"attributes":[]},"Industry":{"active":True,"attributes":[]},"Experiential":{"active":True,"attributes":[]},"Salary":{"active":True,"attributes":[{"amount":"100,000","ccy":"USD"}]}}
         r = c.put('/profile/',y,content_type='application/json',HTTP_AUTHORIZATION=f'Token {token}')
         assert(r.status_code==200)
 
         # skill renamed
         Profile.objects.all().delete()
-        p = najwa_profile()
+        p = najwa_profile(noass=True)
         assert(p.get()[Profile.TECHSTACK]['attributes'][0]['name'] == 'Aerospike')
 
 class AttributesView_(MyTestCase):
