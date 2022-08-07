@@ -193,7 +193,7 @@ class Profile(models.Model):
                     INDUSTRY: {'values':Attribute},
                     EXPERIENTIAL: {'values':Attribute},
                     SALARY: {'values':None},}
-    owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE)
+    owner = models.OneToOneField('accounts.BPUser', on_delete=models.CASCADE, unique=True)
     spec = models.JSONField(null=True)
 
     def update(self,profile):
