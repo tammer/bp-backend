@@ -177,8 +177,10 @@ class Profile(models.Model):
     INDUSTRY = 'Industry'
     EXPERIENTIAL = 'Experiential'
     SALARY = 'Salary'
+    ACTIVE = 'active'
 
-    valid_keys = {  ORGANIZATION:{"values":None},
+    valid_keys = {  ACTIVE:{"values":None},
+                    ORGANIZATION:{"values":None},
                     ROLE: {"values":Attribute},
                     WORKMODEL: {"values":Attribute},
                     LANGUAGE: {"values":Attribute},
