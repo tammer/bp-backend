@@ -178,6 +178,7 @@ class Profile(models.Model):
     EXPERIENTIAL = 'Experiential'
     SALARY = 'Salary'
     ACTIVE = 'active'
+    ATTRIBUTES = 'attributes'
 
     valid_keys = {  ACTIVE:{"values":None},
                     ORGANIZATION:{"values":None},
@@ -203,6 +204,13 @@ class Profile(models.Model):
             if key not in self.valid_keys.keys():
                 raise AttributeError(f"{key} is not a valid key")
         self.spec = profile
+        
+        # Force internal consistency: if onsite or hybrid then location should be active else inactive
+        is_active = False
+        for a in self.spec[Profile.WORKMODEL][Profile.ATTRIBUTES]:
+            is_active = is_active or a['name'] == 'on-site' or a['name'] == 'hybrid' 
+        self.spec[Profile.LOCATION]['active'] = is_active
+
         self.save()
 
     def get(self,refresh_names=True):
