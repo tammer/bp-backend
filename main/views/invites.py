@@ -1,5 +1,5 @@
 from accounts.models import BPUser, Invite
-from main.models import Anchor
+from main.models import Anchor,Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,7 +26,11 @@ class InvitesView(APIView):
         invite.save()
         return Response({'code':invite.code}, status=status.HTTP_201_CREATED)
 
-class SignupView(APIView):
+
+#
+# The Invite One
+#
+class XSignupView(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self,request):
         serializer = SignupSerializer(data=self.request.data,context={ 'request': self.request })
@@ -52,6 +56,25 @@ class SignupView(APIView):
         token = Token.objects.create(user=u)
         return Response({"token":token.key},status=status.HTTP_201_CREATED)
 
-
-
+#
+#  No Invite
+# !!! (it's just a cut and paste of the above.)
+#
+class SignupView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self,request):
+        serializer = SignupSerializer(data=self.request.data,context={ 'request': self.request })
+        serializer.is_valid(raise_exception=True)
+        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+        atts['username'] = "U" + atts['email']
+        # remove profile from atts object
+        profile = atts['profile']
+        del atts['profile']
+        u = BPUser.objects.create_user(**atts)
+        token = Token.objects.create(user=u)
+        
+        p = Profile(owner=u)
+        p.save()
+        p.update(profile)
+        return Response({"token":token.key},status=status.HTTP_201_CREATED)
         

@@ -6,9 +6,10 @@ from accounts.models import BPUser,Invite
 class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
-    first_name = serializers.CharField() 
-    last_name = serializers.CharField()
-    code = serializers.CharField() 
+    profile = serializers.JSONField(required=False)
+    first_name = serializers.CharField(required=False) 
+    last_name = serializers.CharField(required=False)
+    code = serializers.CharField(required=False) 
 
 class InviteSerializer(serializers.ModelSerializer):
     class Meta:
