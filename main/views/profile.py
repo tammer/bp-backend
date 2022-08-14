@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from main.models import Skill
+from main.utils import udpate_assessments_from_profile
 
 
 class MyProfile(APIView):
@@ -32,16 +33,7 @@ class MyProfile(APIView):
             profile = Profile(owner=request.user)
         try:
             profile.update(request.data)
-            techstack = profile.get()[Profile.TECHSTACK]
-            for item in techstack['attributes']:
-                skill = Skill.objects.get(id=item['id'])
-                ass = Assessment.objects.filter(owner=request.user, skill=skill)
-                if not(ass.exists()):
-                    Assessment(owner=request.user, skill=skill,level=item['level']).save()
-                else:
-                    a = ass[0]
-                    a.level = item['level']
-                    a.save()
+            udpate_assessments_from_profile(profile)
             return Response(None, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"message":str(e)},status=status.HTTP_400_BAD_REQUEST)

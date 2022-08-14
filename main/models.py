@@ -206,10 +206,11 @@ class Profile(models.Model):
         self.spec = profile
         
         # Force internal consistency: if onsite or hybrid then location should be active else inactive
-        is_active = False
-        for a in self.spec[Profile.WORKMODEL][Profile.ATTRIBUTES]:
-            is_active = is_active or a['name'] == 'on-site' or a['name'] == 'hybrid' 
-        self.spec[Profile.LOCATION]['active'] = is_active
+        if Profile.WORKMODEL in self.spec:
+            is_active = False
+            for a in self.spec[Profile.WORKMODEL][Profile.ATTRIBUTES]:
+                is_active = is_active or a['name'] == 'on-site' or a['name'] == 'hybrid' 
+            self.spec[Profile.LOCATION]['active'] = is_active
 
         self.save()
 

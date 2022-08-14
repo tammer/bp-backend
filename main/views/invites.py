@@ -13,6 +13,7 @@ from main.serializers import InviteSerializer,SignupSerializer
 from rest_framework import permissions
 
 from rest_framework.authtoken.models import Token
+from main.utils import udpate_assessments_from_profile
 
 
 class InvitesView(APIView):
@@ -63,20 +64,24 @@ class XSignupView(APIView):
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self,request):
-        serializer = SignupSerializer(data=self.request.data,context={ 'request': self.request })
-        serializer.is_valid(raise_exception=True)
-        atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
-        atts['username'] = "U" + atts['email']
-        if BPUser.objects.filter(username=atts['username']).first():
-            return Response("email address is in use",status=status.HTTP_400_BAD_REQUEST)
-        # remove profile from atts object
-        profile = atts['profile']
-        del atts['profile']
-        u = BPUser.objects.create_user(**atts)
-        token = Token.objects.create(user=u)
-        
-        p = Profile(owner=u)
-        p.save()
-        p.update(profile)
-        return Response({"token":token.key},status=status.HTTP_201_CREATED)
+        try:
+            serializer = SignupSerializer(data=self.request.data,context={ 'request': self.request })
+            serializer.is_valid(raise_exception=True)
+            atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
+            atts['username'] = "U" + atts['email']
+            if BPUser.objects.filter(username=atts['username']).first():
+                return Response("email address is in use",status=status.HTTP_400_BAD_REQUEST)
+            # remove profile from atts object
+            profile = atts['profile']
+            del atts['profile']
+            u = BPUser.objects.create_user(**atts)
+            token = Token.objects.create(user=u)
+            
+            p = Profile(owner=u)
+            p.save()
+            p.update(profile)
+            udpate_assessments_from_profile(p)
+            return Response({"token":token.key},status=status.HTTP_201_CREATED)
+        except:
+            return Response("Could not complete signup.  bad data",status=status.HTTP_400_BAD_REQUEST)
         

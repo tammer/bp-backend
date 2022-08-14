@@ -65,7 +65,7 @@ def ross():
 
 # The noass thing:  its for backwards compatability on some tests that were created before assessments
 # were automaticlaly created in profiles.
-def najwa_profile(noass=False):
+def najwa_profile(noass=False, nowrite=False):
     p = Profile.objects.filter(owner=najwa())
     if p.exists():
         return p[0]
@@ -75,7 +75,8 @@ def najwa_profile(noass=False):
     z = [{"id":skill.id,"level":22}]
     y['TechStack']['attributes'] = z
     x = Profile(owner=najwa(), spec=y)
-    x.save()
+    if not(nowrite):
+        x.save()
     if not noass:
         Assessment(owner=najwa(), skill=skill, level=22).save()
     return x
@@ -266,13 +267,13 @@ class AssessmentTest(MyTestCase):
 class ProfileView_(MyTestCase):
     def test(self):
         c = Client()
+        token = get_token(c)
         # unauthorized
         data = json.dumps( {"spec":"{'TechStack':[1,2,3], 'Role':[1]}"} )
         (r,j) = jput(c,'/profile/',data)
         assert(r.status_code==401)
         
         # authorized, sending junk
-        token = get_token(c)
         data = "invalid json"
         (r,j) = jput(c,'/profile/',data,token=token)
         assert(r.status_code==400)
@@ -335,33 +336,50 @@ class AttributesView_(MyTestCase):
         (r,j) = jget(c,"/attributes/Blah/")
         assert(r.status_code==400)
 
-class CreateNewUserView(MyTestCase):
+# This is for the invite version.  not currently using that.
+# class CreateNewUserView(MyTestCase):
+#     def test(self):
+#         c = Client()
+#         data = {"email":"bob@tammer.com","password":"213","code":"bad_code"}
+#         # incomple info:
+#         (r,j) = jpost(c,"/on         assert(r.status_code==400) 
+#         data['first_name'] = "Bob"
+#         data['last_name'] = "Smith"
+#         (r,j) = jpost(c,"/signup/",data)
+#         assert(r.status_code==400)
+#         assert(j['error_code'] == 1)
+#         assert('message' in j.keys())
+#         # now a valid one
+#         i = Invite(email="a@b.com",code="123123",created_by=BPUser.objects.get(email='najwa@quandl.com'))
+#         i.save()
+#         a = Anchor(passer=BPUser.objects.get(email='najwa@quandl.com'),receiver_invite=i,skill=Skill.objects.all().first(),level=99)
+#         assert(a.receiver_invite is not None)
+#         a.save()
+#         data['code'] = "123123"
+#         (r,j) = jpost(c,"/signup/",data)
+#         assert(r.status_code==201)
+#         assert('token' in j.keys())
+#         assert(BPUser.objects.get(email='bob@tammer.com').first_name == 'Bob')
+#         a = Anchor.objects.all().first()
+#         assert(a.receiver_invite is None)
+#         assert(a.receiver == BPUser.objects.get(email='bob@tammer.com'))
+
+class SimpleCreateNewUserView(MyTestCase):
     def test(self):
         c = Client()
-        data = {"email":"bob@tammer.com","password":"213","code":"bad_code"}
-        # incomple info:
+        data = {"email":"bob@tammer.com"}
         (r,j) = jpost(c,"/signup/",data)
         assert(r.status_code==400) 
-        data['first_name'] = "Bob"
-        data['last_name'] = "Smith"
+        data['password'] = 123
         (r,j) = jpost(c,"/signup/",data)
         assert(r.status_code==400)
-        assert(j['error_code'] == 1)
-        assert('message' in j.keys())
-        # now a valid one
-        i = Invite(email="a@b.com",code="123123",created_by=BPUser.objects.get(email='najwa@quandl.com'))
-        i.save()
-        a = Anchor(passer=BPUser.objects.get(email='najwa@quandl.com'),receiver_invite=i,skill=Skill.objects.all().first(),level=99)
-        assert(a.receiver_invite is not None)
-        a.save()
-        data['code'] = "123123"
+        p = najwa_profile(nowrite=True,noass=True)
+        data['profile'] = json.dumps(p.get())
         (r,j) = jpost(c,"/signup/",data)
+        token = j['token']
         assert(r.status_code==201)
-        assert('token' in j.keys())
-        assert(BPUser.objects.get(email='bob@tammer.com').first_name == 'Bob')
-        a = Anchor.objects.all().first()
-        assert(a.receiver_invite is None)
-        assert(a.receiver == BPUser.objects.get(email='bob@tammer.com'))
+        (r,j) = jget(c,'/profile/',token=token)
+        assert(p.get() == j)
 
 class LoginAndLogOutView_(MyTestCase):
     def test_post(self):
