@@ -67,6 +67,8 @@ class SignupView(APIView):
         serializer.is_valid(raise_exception=True)
         atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.data)))
         atts['username'] = "U" + atts['email']
+        if not BPUser.objects.filter(username=atts['username']).first():
+            return Response("email address is in use",status=status.HTTP_400_BAD_REQUEST)
         # remove profile from atts object
         profile = atts['profile']
         del atts['profile']
