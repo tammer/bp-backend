@@ -84,8 +84,8 @@ class SkillsView(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        if not(request.user.is_authenticated):
-            return Response(errors.UNAUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)
+        # if not(request.user.is_authenticated):
+        #     return Response(errors.UNAUTHORIZED,status=status.HTTP_401_UNAUTHORIZED)
         serializer = SkillSerializer(data=self.request.data,context={ 'request': self.request })
         atts = JSONParser().parse(io.BytesIO( JSONRenderer().render(serializer.initial_data)))
         try:
