@@ -28,6 +28,9 @@ SECRET_KEY = 'django-insecure-!ui(7)ecztf3@d1@b-3f$9y2qmmhpmy*c0w&ltsntmw01tohqk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+if 'DEBUG' in os.environ:
+    DEBUG = False
+
 ALLOWED_HOSTS = ['tk-backend-1.herokuapp.com','localhost']
 
 
