@@ -30,7 +30,7 @@ DEBUG = True
 if 'DEBUG' in os.environ:
     DEBUG = False
 
-ALLOWED_HOSTS = ['tk-backend-1.herokuapp.com','localhost']
+ALLOWED_HOSTS = ['backgroundprocess.net','tk-backend-1.herokuapp.com','localhost']
 
 
 # Application definition
@@ -142,6 +142,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = [
      'http://localhost:3000',
+     'https://backgroundprocess.net',
      'https://tkbp1.herokuapp.com'
 ]
 
