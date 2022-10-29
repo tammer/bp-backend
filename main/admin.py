@@ -11,7 +11,7 @@ class AttributeAdmin(admin.ModelAdmin):
     list_display = ("category","name")
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("spec",)
+    list_display = ("owner","spec",)
 
 class SkillAdmin(admin.ModelAdmin):
     list_display: ("name",)
