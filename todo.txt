@@ -1,6 +1,12 @@
 October
 -----------
 change title to backgroun process instead of prototype
+"blockly" appears twice on prod
+about
+careers
+landing page is mobile crappy as are the modals.
+make sure server only accepts ssl too
+make sure PG database is paid for $7
 
 
 
