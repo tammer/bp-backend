@@ -8,7 +8,7 @@ class BPUserAdmin(UserAdmin):
     add_form = BPUserCreationForm
     form = BPUserChangeForm
     model = BPUser
-    list_display = ["email", "username",]
+    list_display = ["email", "username", "date_joined", "last_login"]
 
 class InviteAdmin(admin.ModelAdmin):
     list_display: ("email","code","created_by","created_at","accepted_by")    

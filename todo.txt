@@ -1,17 +1,15 @@
 October
 -----------
-local server issues
-landing page is mobile crappy as are the modals.
+
 make sure PG database is paid for $7
-rendering on mobile seems to totally suck actually.
-"blockly" appears twice on prod
 about
 careers
 
 
+
+
+
 Summer 2022:
-
-
 
 immediate
 test code for anchor create (dont worry about the views yet since they will change)
