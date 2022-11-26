@@ -255,3 +255,6 @@ class Assessment(models.Model):
     def __str__(self):
         return self.owner.email
 
+class Log(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    value = models.CharField(max_length=500,unique=False)

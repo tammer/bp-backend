@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Assessment, Category, Attribute, Job, Opportunity,Profile,Skill,Anchor,Endorsement
+from .models import Assessment, Category, Attribute, Job, Opportunity,Profile,Skill,Anchor,Endorsement,Log
 
 class AnchorAdmin(admin.ModelAdmin):
     list_display: ("passer",)
@@ -28,6 +28,9 @@ class JobAdmin(admin.ModelAdmin):
 class OpportunityAdmin(admin.ModelAdmin):
     list_display: ("id")
 
+class LogAdmin(admin.ModelAdmin):
+    list_display = ("created_at","value",)
+
 # Register your models here.
 
 admin.site.register(Category, CategoryAdmin)
@@ -39,3 +42,4 @@ admin.site.register(Assessment,AssessmentAdmin)
 admin.site.register(Endorsement,EndorsementAdmin)
 admin.site.register(Job,JobAdmin)
 admin.site.register(Opportunity,OpportunityAdmin)
+admin.site.register(Log,LogAdmin)

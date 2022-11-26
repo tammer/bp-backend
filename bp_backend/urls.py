@@ -98,6 +98,8 @@ urlpatterns = [
         # UNAUTHENTICATED PUT only
         # !!! used only for testing
 
+    path('log/',views.LogsView.as_view()),
+
 
 
     ]

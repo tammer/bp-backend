@@ -2,7 +2,7 @@ from os import stat
 from accounts.models import BPUser, Invite
 from ..serializers import AttributeSerializer
 from ..serializers import LoginSerializer,BPUserSerializer,SkillSerializer
-from ..models import Attribute,Category,Profile,Skill,Endorsement
+from ..models import Attribute,Category,Profile,Skill,Endorsement,Log
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -69,6 +69,15 @@ class LogoutView(APIView):
         request.user.auth_token.delete()
         logout(request)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+class LogsView(APIView):
+    permission_classes = (permissions.AllowAny,) 
+    def post(self,request):
+        json = JSONParser().parse(io.BytesIO( JSONRenderer().render(self.request.data)))
+        y = Log(value=json['value'])
+        y.save()
+        return JsonResponse({"value":self.request.data}, status=status.HTTP_200_OK)
+
 
 class SkillsView(APIView):
     permission_classes = (permissions.AllowAny,)
