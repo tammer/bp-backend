@@ -16,6 +16,9 @@ from django.db.models import Q
 from itertools import chain
 import main.views.errors as errors
 
+# for pixel thing
+from django.http.response import HttpResponse 
+
 class friendsView(APIView):
     def get(self, request):
         if not(request.user.is_authenticated):
@@ -77,6 +80,14 @@ class LogsView(APIView):
         y = Log(value=json['value'])
         y.save()
         return JsonResponse({"value":self.request.data}, status=status.HTTP_200_OK)
+
+class PixelView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request, code, filter=None, format=None):
+        y = Log(value=f'pixel-{code}')
+        y.save()
+        pixel_image = b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
+        return HttpResponse(pixel_image, content_type='image/gif')
 
 
 class SkillsView(APIView):

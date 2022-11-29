@@ -100,6 +100,8 @@ urlpatterns = [
 
     path('log/',views.LogsView.as_view()),
 
+    path('<str:code>.gif',views.PixelView.as_view()),
+
 
 
     ]
